@@ -351,15 +351,25 @@ export default function NendosanteiForm() {
                   type="button"
                   onClick={addContact}
                   disabled={contacts.length >= MAX_CONTACTS}
-                  className="btn-secondary"
+                  className="btn-secondary inline-flex items-center justify-center gap-2"
                 >
-                  ＋ 顧問先を追加 <span className="text-slate-400 ml-1">({contacts.length}/{MAX_CONTACTS})</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-4 h-4 shrink-0" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  <span>顧問先を追加</span>
+                  <span className="text-slate-400 ml-0.5">({contacts.length}/{MAX_CONTACTS})</span>
                 </button>
-                <a href="/csv-template/nendosantei-template.csv" download className="btn-ghost text-center">
-                  CSVテンプレートをDL
+                <a href="/csv-template/nendosantei-template.csv" download className="btn-ghost inline-flex items-center justify-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" className="w-4 h-4 shrink-0" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                  <span>CSVテンプレートをDL</span>
                 </a>
-                <label className="btn-ghost text-center cursor-pointer">
-                  CSVから一括入力
+                <label className="btn-ghost inline-flex items-center justify-center gap-2 cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" className="w-4 h-4 shrink-0" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                  </svg>
+                  <span>CSVから一括入力</span>
                   <input ref={csvInputRef} type="file" accept=".csv,text/csv" className="sr-only" onChange={handleCsvUpload} />
                 </label>
               </div>
