@@ -248,7 +248,7 @@ export default function NendosanteiForm() {
                   className={
                     'h-12 px-4 rounded-md border text-sm transition-all text-center ' +
                     (selected
-                      ? 'border-slate-900 bg-slate-900 text-white font-medium'
+                      ? 'border-blue-600 bg-blue-600 text-white font-medium'
                       : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50')
                   }
                 >
@@ -415,7 +415,7 @@ export default function NendosanteiForm() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full h-12 sm:h-14 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-base font-medium tracking-wide transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
+                className="w-full h-12 sm:h-14 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-base font-medium tracking-wide transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
               >
                 {submitting ? '送信中…' : 'この内容で送信する'}
               </button>
