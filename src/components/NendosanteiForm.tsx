@@ -177,20 +177,24 @@ export default function NendosanteiForm() {
               受付中
             </span>
           </div>
-          <div className="flex">
-            <div className="w-[3px] bg-slate-900 mr-4 sm:mr-5 rounded-full" aria-hidden />
-            <div className="py-1.5 flex-1 min-w-0">
-              <div className="text-[11px] font-medium text-slate-500 uppercase tracking-[0.2em] mb-2.5">
-                ご依頼フォーム　／　2026年度
-              </div>
-              <h1 className="text-2xl sm:text-[28px] font-semibold text-slate-900 leading-tight tracking-tight">
-                会計事務所様へのご依頼
-              </h1>
-              <p className="text-sm sm:text-base text-slate-600 mt-2.5 leading-relaxed">
-                <span className="text-slate-900 font-medium">年度更新・算定基礎届</span>
-                <span className="text-slate-400 mx-2">／</span>
-                代行受付フォーム
-              </p>
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="block w-8 h-px bg-slate-900" aria-hidden />
+              <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-[0.22em]">
+                ご依頼フォーム
+              </span>
+              <span className="text-[11px] text-slate-400 tabular-nums">2026年度</span>
+            </div>
+            <h1 className="text-[26px] sm:text-[32px] font-semibold text-slate-900 leading-[1.25] tracking-tight">
+              会計事務所様へのご依頼
+            </h1>
+            <p className="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
+              <span className="text-slate-900 font-medium">年度更新・算定基礎届</span>
+              <span className="text-slate-300 mx-2.5" aria-hidden>／</span>
+              <span>代行受付フォーム</span>
+            </p>
+            <div className="mt-6 pt-5 border-t border-slate-200/80 text-[13px] text-slate-500 leading-relaxed">
+              スポット社労士くんが、会計事務所様の顧問先の年度更新・算定基礎届を一括で代行いたします。
             </div>
           </div>
         </header>
