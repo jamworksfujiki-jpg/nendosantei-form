@@ -183,24 +183,72 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
           {errors?.email && <p className="text-sm text-red-700 mt-1">{errors.email}</p>}
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 pt-5 border-t border-slate-100">
-        <FileField
-          label="算定基礎届"
-          file={contact.santeiFile}
-          onChange={(f) => onUpdate(contact.rowIndex, { santeiFile: f })}
-          required
-          fieldId={`${idBase}-santei`}
-          error={errors?.santeiFile}
-        />
-        <FileField
-          label="労働保険料申告書"
-          file={contact.rohoFile}
-          onChange={(f) => onUpdate(contact.rowIndex, { rohoFile: f })}
-          required
-          fieldId={`${idBase}-roho`}
-          error={errors?.rohoFile}
-        />
+      <div className="mt-5 pt-5 border-t border-slate-100">
+        <p className="text-sm font-medium text-slate-700 mb-2">
+          ご依頼内容 <span className="text-red-700">*</span>
+          <span className="ml-2 text-xs font-normal text-slate-500">（1つ以上選択・各9,900円）</span>
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <label className={
+            'flex items-center gap-3 px-4 h-12 rounded-md border cursor-pointer transition-colors ' +
+            (contact.needsNendoKoshin
+              ? 'border-blue-600 bg-blue-50 text-blue-900'
+              : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50')
+          }>
+            <input
+              type="checkbox"
+              checked={contact.needsNendoKoshin}
+              onChange={(e) => onUpdate(contact.rowIndex, { needsNendoKoshin: e.target.checked })}
+              className="h-4 w-4 accent-blue-600"
+              aria-invalid={!!errors?.needsNendoKoshin}
+            />
+            <span className="text-sm font-medium">年度更新</span>
+            <span className="ml-auto text-xs tabular-nums">¥9,900</span>
+          </label>
+          <label className={
+            'flex items-center gap-3 px-4 h-12 rounded-md border cursor-pointer transition-colors ' +
+            (contact.needsSantei
+              ? 'border-blue-600 bg-blue-50 text-blue-900'
+              : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50')
+          }>
+            <input
+              type="checkbox"
+              checked={contact.needsSantei}
+              onChange={(e) => onUpdate(contact.rowIndex, { needsSantei: e.target.checked })}
+              className="h-4 w-4 accent-blue-600"
+            />
+            <span className="text-sm font-medium">算定基礎届</span>
+            <span className="ml-auto text-xs tabular-nums">¥9,900</span>
+          </label>
+        </div>
+        {errors?.needsNendoKoshin && (
+          <p className="text-sm text-red-700 mt-2">{errors.needsNendoKoshin}</p>
+        )}
       </div>
+      {(contact.needsNendoKoshin || contact.needsSantei) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 pt-5 border-t border-slate-100">
+          {contact.needsNendoKoshin && (
+            <FileField
+              label="労働保険料申告書"
+              file={contact.rohoFile}
+              onChange={(f) => onUpdate(contact.rowIndex, { rohoFile: f })}
+              required
+              fieldId={`${idBase}-roho`}
+              error={errors?.rohoFile}
+            />
+          )}
+          {contact.needsSantei && (
+            <FileField
+              label="算定基礎届"
+              file={contact.santeiFile}
+              onChange={(f) => onUpdate(contact.rowIndex, { santeiFile: f })}
+              required
+              fieldId={`${idBase}-santei`}
+              error={errors?.santeiFile}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

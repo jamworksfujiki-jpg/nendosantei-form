@@ -44,19 +44,29 @@ export async function POST(req: NextRequest) {
     }
     const input = parsed.data;
 
-    // ファイル取得＆検証
+    // ファイル取得＆検証（需要に応じた条件付き必須）
     type IncomingFile = { rowIndex: number; kind: 'santei' | 'roho'; file: File };
     const files: IncomingFile[] = [];
     for (const c of input.contacts) {
+      if (!c.needsNendoKoshin && !c.needsSantei) {
+        return NextResponse.json({ error: `顧問先#${c.rowIndex} のご依頼内容を選択してください` }, { status: 400 });
+      }
       const santei = formData.get(`file_${c.rowIndex}_santei`);
       const roho = formData.get(`file_${c.rowIndex}_roho`);
-      if (!(santei instanceof File) || santei.size === 0) {
-        return NextResponse.json({ error: `顧問先#${c.rowIndex} の算定基礎届が添付されていません` }, { status: 400 });
+      if (c.needsSantei) {
+        if (!(santei instanceof File) || santei.size === 0) {
+          return NextResponse.json({ error: `顧問先#${c.rowIndex} の算定基礎届が添付されていません` }, { status: 400 });
+        }
       }
-      if (!(roho instanceof File) || roho.size === 0) {
-        return NextResponse.json({ error: `顧問先#${c.rowIndex} の労働保険料申告書が添付されていません` }, { status: 400 });
+      if (c.needsNendoKoshin) {
+        if (!(roho instanceof File) || roho.size === 0) {
+          return NextResponse.json({ error: `顧問先#${c.rowIndex} の労働保険料申告書が添付されていません` }, { status: 400 });
+        }
       }
-      for (const f of [santei, roho]) {
+      const toValidate: File[] = [];
+      if (c.needsSantei && santei instanceof File) toValidate.push(santei);
+      if (c.needsNendoKoshin && roho instanceof File) toValidate.push(roho);
+      for (const f of toValidate) {
         if (f.size > MAX_FILE_BYTES) {
           return NextResponse.json({ error: `ファイル ${f.name} が5MBを超えています` }, { status: 400 });
         }
@@ -64,8 +74,8 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: `ファイル ${f.name} の形式が対応していません` }, { status: 400 });
         }
       }
-      files.push({ rowIndex: c.rowIndex, kind: 'santei', file: santei });
-      files.push({ rowIndex: c.rowIndex, kind: 'roho', file: roho });
+      if (c.needsSantei && santei instanceof File) files.push({ rowIndex: c.rowIndex, kind: 'santei', file: santei });
+      if (c.needsNendoKoshin && roho instanceof File) files.push({ rowIndex: c.rowIndex, kind: 'roho', file: roho });
     }
 
     const supabase = getServiceClient();
@@ -100,6 +110,8 @@ export async function POST(req: NextRequest) {
           contact_name: c.contactName,
           phone: c.phone,
           email: c.email,
+          needs_nendo_koshin: c.needsNendoKoshin,
+          needs_santei: c.needsSantei,
         })),
       )
       .select('id, row_index');

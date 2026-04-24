@@ -3,7 +3,7 @@ import { getServiceClient } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 
-const PRICE_PER_CONTACT = 9900;
+const PRICE_PER_SERVICE = 9900;
 
 function safeEqual(a: string, b: string) {
   if (a.length !== b.length) return false;
@@ -24,30 +24,49 @@ export async function GET(req: NextRequest) {
     .select(`
       id, submission_method, applicant_office_name, applicant_name,
       applicant_email, applicant_phone, total_contacts, status, created_at,
-      application_contacts ( row_index, company_name )
+      application_contacts ( row_index, company_name, needs_nendo_koshin, needs_santei )
     `)
     .order('created_at', { ascending: false })
     .limit(500);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const applications = (data ?? []).map((a) => ({
-    ...a,
-    application_contacts: (a.application_contacts ?? []).slice().sort(
-      (x: { row_index: number }, y: { row_index: number }) => x.row_index - y.row_index,
-    ),
-  }));
+  type RawContact = { row_index: number; company_name: string; needs_nendo_koshin?: boolean; needs_santei?: boolean };
+
+  const applications = (data ?? []).map((a) => {
+    const contacts = (a.application_contacts ?? []).slice().sort(
+      (x: RawContact, y: RawContact) => x.row_index - y.row_index,
+    ) as RawContact[];
+    const nendoCount = contacts.filter((c) => c.needs_nendo_koshin).length;
+    const santeiCount = contacts.filter((c) => c.needs_santei).length;
+    const serviceCount = nendoCount + santeiCount;
+    const revenue = serviceCount * PRICE_PER_SERVICE;
+    return {
+      ...a,
+      application_contacts: contacts,
+      nendo_count: nendoCount,
+      santei_count: santeiCount,
+      service_count: serviceCount,
+      revenue,
+    };
+  });
 
   const totalOrders = applications.length;
   const totalContacts = applications.reduce((sum, a) => sum + (a.total_contacts ?? 0), 0);
-  const totalRevenue = totalContacts * PRICE_PER_CONTACT;
+  const totalNendo = applications.reduce((sum, a) => sum + a.nendo_count, 0);
+  const totalSantei = applications.reduce((sum, a) => sum + a.santei_count, 0);
+  const totalServices = totalNendo + totalSantei;
+  const totalRevenue = totalServices * PRICE_PER_SERVICE;
 
   return NextResponse.json({
     applications,
     summary: {
       totalOrders,
       totalContacts,
+      totalNendo,
+      totalSantei,
+      totalServices,
       totalRevenue,
-      pricePerContact: PRICE_PER_CONTACT,
+      pricePerService: PRICE_PER_SERVICE,
     },
   });
 }

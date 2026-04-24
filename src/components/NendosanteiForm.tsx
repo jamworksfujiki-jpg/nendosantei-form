@@ -21,6 +21,8 @@ function emptyContact(rowIndex: number): ContactRow {
     contactName: '',
     phone: '',
     email: '',
+    needsNendoKoshin: true,
+    needsSantei: true,
     santeiFile: null,
     rohoFile: null,
   };
@@ -104,8 +106,11 @@ export default function NendosanteiForm() {
       else if (!PHONE_REGEX.test(c.phone.trim())) ce.phone = '電話番号の形式が正しくありません';
       if (!c.email.trim()) ce.email = 'メールアドレスを入力してください';
       else if (!EMAIL_REGEX.test(c.email.trim())) ce.email = 'メールアドレスの形式が正しくありません';
-      if (!c.santeiFile) ce.santeiFile = '算定基礎届を選択してください';
-      if (!c.rohoFile) ce.rohoFile = '労働保険料申告書を選択してください';
+      if (!c.needsNendoKoshin && !c.needsSantei) {
+        ce.needsNendoKoshin = '年度更新または算定基礎届のいずれかを選択してください';
+      }
+      if (c.needsNendoKoshin && !c.rohoFile) ce.rohoFile = '労働保険料申告書を選択してください';
+      if (c.needsSantei && !c.santeiFile) ce.santeiFile = '算定基礎届を選択してください';
       if (Object.keys(ce).length > 0) newContactErrors[c.rowIndex] = ce;
     });
 
@@ -140,6 +145,8 @@ export default function NendosanteiForm() {
           contactName: c.contactName.trim(),
           phone: c.phone.trim(),
           email: c.email.trim(),
+          needsNendoKoshin: c.needsNendoKoshin,
+          needsSantei: c.needsSantei,
         })),
       };
       formData.append('payload', JSON.stringify(payload));

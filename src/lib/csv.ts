@@ -37,6 +37,8 @@ export function buildContactRowFromParsed(parsed: ParsedCsvRow, rowIndex: number
     contactName: parsed.contactName,
     phone: parsed.phone,
     email: parsed.email,
+    needsNendoKoshin: true,
+    needsSantei: true,
     santeiFile: null,
     rohoFile: null,
   };

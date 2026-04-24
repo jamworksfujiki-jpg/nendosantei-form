@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 interface ContactRow {
   row_index: number;
   company_name: string;
+  needs_nendo_koshin?: boolean;
+  needs_santei?: boolean;
 }
 
 interface ApplicationRow {
@@ -18,13 +20,20 @@ interface ApplicationRow {
   status: string;
   created_at: string;
   application_contacts: ContactRow[];
+  nendo_count: number;
+  santei_count: number;
+  service_count: number;
+  revenue: number;
 }
 
 interface Summary {
   totalOrders: number;
   totalContacts: number;
+  totalNendo: number;
+  totalSantei: number;
+  totalServices: number;
   totalRevenue: number;
-  pricePerContact: number;
+  pricePerService: number;
 }
 
 const SUBMISSION_LABEL: Record<ApplicationRow['submission_method'], string> = {
@@ -111,14 +120,30 @@ export default function AdminPage() {
       </div>
 
       {summary && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <div className="rounded-lg bg-white border border-slate-200 p-5">
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1.5">売上件数</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1.5">受注総数</p>
             <p className="text-2xl font-semibold text-slate-900 tabular-nums">
-              {formatJpy(summary.totalContacts)}
+              {formatJpy(summary.totalOrders)}
               <span className="text-sm text-slate-500 font-normal ml-1">件</span>
             </p>
-            <p className="text-xs text-slate-400 mt-1">顧問先ベース</p>
+            <p className="text-xs text-slate-400 mt-1">会計事務所</p>
+          </div>
+          <div className="rounded-lg bg-white border border-slate-200 p-5">
+            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1.5">年度更新</p>
+            <p className="text-2xl font-semibold text-slate-900 tabular-nums">
+              {formatJpy(summary.totalNendo)}
+              <span className="text-sm text-slate-500 font-normal ml-1">件</span>
+            </p>
+            <p className="text-xs text-slate-400 mt-1">労働保険料申告書</p>
+          </div>
+          <div className="rounded-lg bg-white border border-slate-200 p-5">
+            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1.5">算定基礎届</p>
+            <p className="text-2xl font-semibold text-slate-900 tabular-nums">
+              {formatJpy(summary.totalSantei)}
+              <span className="text-sm text-slate-500 font-normal ml-1">件</span>
+            </p>
+            <p className="text-xs text-slate-400 mt-1">1項目9,900円</p>
           </div>
           <div className="rounded-lg bg-blue-50 border border-blue-200 p-5">
             <p className="text-xs text-blue-700 uppercase tracking-wider mb-1.5">総売上</p>
@@ -126,16 +151,8 @@ export default function AdminPage() {
               ¥{formatJpy(summary.totalRevenue)}
             </p>
             <p className="text-xs text-blue-700/80 mt-1">
-              @¥{formatJpy(summary.pricePerContact)} × {formatJpy(summary.totalContacts)}件
+              @¥{formatJpy(summary.pricePerService)} × {formatJpy(summary.totalServices)}項目
             </p>
-          </div>
-          <div className="rounded-lg bg-white border border-slate-200 p-5">
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1.5">受注総数</p>
-            <p className="text-2xl font-semibold text-slate-900 tabular-nums">
-              {formatJpy(summary.totalOrders)}
-              <span className="text-sm text-slate-500 font-normal ml-1">件</span>
-            </p>
-            <p className="text-xs text-slate-400 mt-1">会計事務所ベース</p>
           </div>
         </div>
       )}
@@ -149,7 +166,8 @@ export default function AdminPage() {
               <th className="text-left px-3 py-2.5 font-medium">ご担当者</th>
               <th className="text-left px-3 py-2.5 font-medium">申込種別</th>
               <th className="text-left px-3 py-2.5 font-medium">紐づく会社名</th>
-              <th className="text-right px-3 py-2.5 font-medium">件数</th>
+              <th className="text-center px-3 py-2.5 font-medium">年度更新</th>
+              <th className="text-center px-3 py-2.5 font-medium">算定</th>
               <th className="text-right px-3 py-2.5 font-medium">売上</th>
               <th className="text-left px-3 py-2.5 font-medium">状態</th>
             </tr>
@@ -157,8 +175,7 @@ export default function AdminPage() {
           <tbody>
             {rows.map((r) => {
               const isExpanded = expanded.has(r.id);
-              const companies = r.application_contacts.map((c) => c.company_name);
-              const revenue = r.total_contacts * (summary?.pricePerContact ?? 9900);
+              const contacts = r.application_contacts ?? [];
               return (
                 <tr key={r.id} className="border-t border-slate-100 align-top">
                   <td className="px-3 py-2.5 whitespace-nowrap text-slate-600 text-xs">
@@ -180,12 +197,19 @@ export default function AdminPage() {
                     </span>
                   </td>
                   <td className="px-3 py-2.5 text-slate-700 max-w-xs">
-                    {companies.length === 0 ? (
+                    {contacts.length === 0 ? (
                       <span className="text-slate-400 text-xs">（紙・メール受付）</span>
                     ) : isExpanded ? (
                       <ul className="space-y-0.5 text-xs">
-                        {companies.map((name, i) => (
-                          <li key={i}>#{i + 1} {name}</li>
+                        {contacts.map((c, i) => (
+                          <li key={i}>
+                            #{i + 1} {c.company_name}
+                            <span className="ml-2 text-slate-400">
+                              {c.needs_nendo_koshin && '年度更新'}
+                              {c.needs_nendo_koshin && c.needs_santei && '＋'}
+                              {c.needs_santei && '算定'}
+                            </span>
+                          </li>
                         ))}
                         <li>
                           <button onClick={() => toggleExpand(r.id)} className="text-blue-600 hover:underline text-xs mt-1">
@@ -196,10 +220,10 @@ export default function AdminPage() {
                     ) : (
                       <div className="text-xs">
                         <span className="truncate block max-w-[220px]">
-                          {companies.slice(0, 2).join('、')}
-                          {companies.length > 2 && ` 他${companies.length - 2}社`}
+                          {contacts.slice(0, 2).map((c) => c.company_name).join('、')}
+                          {contacts.length > 2 && ` 他${contacts.length - 2}社`}
                         </span>
-                        {companies.length > 2 && (
+                        {contacts.length > 1 && (
                           <button onClick={() => toggleExpand(r.id)} className="text-blue-600 hover:underline mt-0.5">
                             すべて表示
                           </button>
@@ -207,11 +231,14 @@ export default function AdminPage() {
                       </div>
                     )}
                   </td>
-                  <td className="px-3 py-2.5 text-right font-mono tabular-nums text-slate-900">
-                    {r.total_contacts}
+                  <td className="px-3 py-2.5 text-center font-mono tabular-nums text-slate-900">
+                    {r.nendo_count > 0 ? r.nendo_count : <span className="text-slate-300">-</span>}
+                  </td>
+                  <td className="px-3 py-2.5 text-center font-mono tabular-nums text-slate-900">
+                    {r.santei_count > 0 ? r.santei_count : <span className="text-slate-300">-</span>}
                   </td>
                   <td className="px-3 py-2.5 text-right font-mono tabular-nums text-slate-900">
-                    ¥{formatJpy(revenue)}
+                    ¥{formatJpy(r.revenue)}
                   </td>
                   <td className="px-3 py-2.5 text-slate-600 text-xs">{r.status}</td>
                 </tr>
@@ -219,7 +246,7 @@ export default function AdminPage() {
             })}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="text-center py-12 text-slate-500">受注はまだありません</td>
+                <td colSpan={9} className="text-center py-12 text-slate-500">受注はまだありません</td>
               </tr>
             )}
           </tbody>
@@ -227,7 +254,7 @@ export default function AdminPage() {
       </div>
 
       <p className="mt-4 text-xs text-slate-400">
-        ログインPW: spot1192（環境変数 ADMIN_PASSWORD で変更可）
+        単価: ¥9,900 / 項目（年度更新・算定基礎届は別計上）
       </p>
     </main>
   );

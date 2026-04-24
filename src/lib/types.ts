@@ -7,6 +7,8 @@ export interface ContactRow {
   contactName: string;
   phone: string;
   email: string;
+  needsNendoKoshin: boolean;
+  needsSantei: boolean;
   santeiFile?: File | null;
   rohoFile?: File | null;
 }
