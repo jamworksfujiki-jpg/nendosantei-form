@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState, useRef } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { ContactRow, SubmissionMethod } from '@/lib/types';
 import { isAfterDeadline, EMAIL_REGEX, PHONE_REGEX } from '@/lib/validation';
@@ -159,38 +160,39 @@ export default function NendosanteiForm() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#fafafa]">
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* ヘッダ */}
-        <header className="text-center mb-8">
-          <div className="inline-flex items-center justify-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-[#298ef2] text-white flex items-center justify-center font-bold text-lg shadow-md">
-              S
-            </div>
-            <span className="text-sm text-gray-500 font-medium">スポット社労士くん</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
-            【会計事務所様へのご依頼】
+        <header className="mb-8 sm:mb-10">
+          <Image
+            src="/spot-logo.png"
+            alt="スポット社労士くん"
+            width={200}
+            height={47}
+            priority
+            className="mb-6"
+          />
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 leading-snug tracking-tight">
+            会計事務所様へのご依頼
           </h1>
-          <p className="text-base sm:text-lg text-gray-700 mt-2 font-medium">
-            年度更新・算定基礎届 代行受付フォーム
+          <p className="text-sm sm:text-base text-slate-600 mt-2">
+            年度更新・算定基礎届　代行受付フォーム
           </p>
         </header>
 
         {/* 紹介条件 */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-sm">
-          <h2 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
-            <span aria-hidden>📋</span>
+        <section className="bg-white rounded-lg border border-slate-200 p-5 sm:p-6">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
             ご紹介いただける顧問先の条件
           </h2>
-          <ul className="mt-3 space-y-2 text-sm text-gray-700 leading-relaxed">
-            <li className="flex gap-2">
-              <span className="font-bold text-[#298ef2] shrink-0">①</span>
-              <span>2025/4/1〜2026/3/31 まで <strong>freee人事労務</strong> で給与計算を確定し利用している会計事務所の顧問先</span>
+          <ul className="space-y-3 text-sm text-slate-700 leading-relaxed">
+            <li className="flex gap-3">
+              <span className="shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-center">1</span>
+              <span>2025/4/1〜2026/3/31 まで <span className="font-medium text-slate-900">freee人事労務</span> で給与計算を確定し利用している会計事務所の顧問先</span>
             </li>
-            <li className="flex gap-2">
-              <span className="font-bold text-[#298ef2] shrink-0">②</span>
-              <span>役員、パート・アルバイトを含み <strong>30名以下</strong> の顧問先（年度内で30名を超えたタイミングがあるケースは対象外）</span>
+            <li className="flex gap-3">
+              <span className="shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-center">2</span>
+              <span>役員、パート・アルバイトを含み <span className="font-medium text-slate-900">30名以下</span> の顧問先（年度内で30名を超えたタイミングがあるケースは対象外）</span>
             </li>
           </ul>
         </section>
@@ -202,19 +204,19 @@ export default function NendosanteiForm() {
           onAcknowledge={setDeadlineAcknowledged}
         />
         {errors.deadlineAcknowledged && (
-          <p className="text-sm text-red-600 -mt-3 mb-3 ml-1">{errors.deadlineAcknowledged}</p>
+          <p className="text-sm text-red-700 -mt-3 mb-3 ml-1">{errors.deadlineAcknowledged}</p>
         )}
 
         {/* 提出方法選択 */}
         <section className="my-8" aria-labelledby="submission-heading">
-          <h2 id="submission-heading" className="text-lg sm:text-xl font-bold text-gray-900 mb-3">
+          <h2 id="submission-heading" className="text-base font-semibold text-slate-900 mb-3">
             提出方法をお選びください
           </h2>
-          <div role="radiogroup" aria-labelledby="submission-heading" className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div role="radiogroup" aria-labelledby="submission-heading" className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {([
-              { v: 'paper' as const, label: '紙で当社に送付', icon: '✉️' },
-              { v: 'email' as const, label: 'メールで送信', icon: '📧' },
-              { v: 'form' as const, label: 'フォームから入力', icon: '📝' },
+              { v: 'paper' as const, label: '紙で送付' },
+              { v: 'email' as const, label: 'メールで送信' },
+              { v: 'form' as const, label: 'フォームから入力' },
             ]).map((opt) => {
               const selected = submissionMethod === opt.v;
               return (
@@ -225,16 +227,13 @@ export default function NendosanteiForm() {
                   aria-checked={selected}
                   onClick={() => setSubmissionMethod(opt.v)}
                   className={
-                    'h-auto min-h-[88px] px-4 py-4 rounded-2xl border-2 text-left transition-all ' +
+                    'h-12 px-4 rounded-md border text-sm transition-all text-center ' +
                     (selected
-                      ? 'border-[#298ef2] bg-[#e7f1fb] shadow-md'
-                      : 'border-gray-200 bg-white hover:border-[#298ef2]/50 hover:bg-gray-50')
+                      ? 'border-slate-900 bg-slate-900 text-white font-medium'
+                      : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50')
                   }
                 >
-                  <div className="text-2xl mb-1" aria-hidden>{opt.icon}</div>
-                  <div className={'font-semibold ' + (selected ? 'text-[#1d6fc4]' : 'text-gray-900')}>
-                    {opt.label}
-                  </div>
+                  {opt.label}
                 </button>
               );
             })}
@@ -243,14 +242,14 @@ export default function NendosanteiForm() {
 
         {/* 紙 */}
         {submissionMethod === 'paper' && (
-          <section className="rounded-2xl bg-white border border-gray-200 p-5 sm:p-6 shadow-sm">
-            <h3 className="text-base font-bold text-gray-900 mb-3">送付先</h3>
-            <div className="text-sm text-gray-800 leading-relaxed space-y-1">
-              <p className="font-semibold">スポット社労士くん社会保険労務士法人　油井 宛</p>
+          <section className="rounded-lg bg-white border border-slate-200 p-5 sm:p-6">
+            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">送付先</h3>
+            <div className="text-sm text-slate-800 leading-relaxed space-y-1">
+              <p className="font-medium text-slate-900">スポット社労士くん社会保険労務士法人　油井 宛</p>
               <p>〒102-0075 東京都千代田区三番町3-8 泉館三番町6F</p>
-              <p>TEL: <a href="tel:0362726183" className="text-[#298ef2] hover:underline">03-6272-6183</a></p>
+              <p>TEL: <a href="tel:0362726183" className="text-slate-900 underline underline-offset-4 decoration-slate-300 hover:decoration-slate-900">03-6272-6183</a></p>
             </div>
-            <p className="mt-4 text-sm text-gray-600">
+            <p className="mt-4 text-sm text-slate-600">
               算定基礎届・労働保険料申告書を上記住所までお送りください。
             </p>
           </section>
@@ -258,12 +257,12 @@ export default function NendosanteiForm() {
 
         {/* メール */}
         {submissionMethod === 'email' && (
-          <section className="rounded-2xl bg-white border border-gray-200 p-5 sm:p-6 shadow-sm">
-            <h3 className="text-base font-bold text-gray-900 mb-3">送信先メールアドレス</h3>
-            <p className="text-lg text-[#298ef2] font-semibold">
-              <a href="mailto:yui@spot-s.or.jp" className="hover:underline">yui@spot-s.or.jp</a>
+          <section className="rounded-lg bg-white border border-slate-200 p-5 sm:p-6">
+            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">送信先メールアドレス</h3>
+            <p className="text-lg text-slate-900 font-medium">
+              <a href="mailto:yui@spot-s.or.jp" className="underline underline-offset-4 decoration-slate-300 hover:decoration-slate-900">yui@spot-s.or.jp</a>
             </p>
-            <p className="mt-3 text-sm text-gray-600">
+            <p className="mt-3 text-sm text-slate-600">
               算定基礎届・労働保険料申告書を上記アドレスまでメール送信してください。件名に「年度更新・算定基礎届のご依頼」とご記入ください。
             </p>
           </section>
@@ -273,35 +272,35 @@ export default function NendosanteiForm() {
         {submissionMethod === 'form' && (
           <form onSubmit={handleSubmit} noValidate>
             {/* 申込者情報 */}
-            <section className="rounded-2xl bg-white border border-gray-200 p-5 sm:p-6 shadow-sm" aria-labelledby="applicant-heading">
-              <h3 id="applicant-heading" className="text-base sm:text-lg font-bold text-gray-900 mb-4">
+            <section className="rounded-lg bg-white border border-slate-200 p-5 sm:p-6" aria-labelledby="applicant-heading">
+              <h3 id="applicant-heading" className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
                 ご担当者様情報（会計事務所）
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label htmlFor="ofcname" className="block text-sm font-medium text-gray-700 mb-1">会計事務所名</label>
+                  <label htmlFor="ofcname" className="block text-sm font-medium text-slate-700 mb-1.5">会計事務所名</label>
                   <input id="ofcname" type="text" className="input-base" value={applicantOfficeName} onChange={(e) => setApplicantOfficeName(e.target.value)} placeholder="○○会計事務所" autoComplete="organization" />
                 </div>
                 <div>
-                  <label htmlFor="appname" className="block text-sm font-medium text-gray-700 mb-1">
-                    お名前 <span className="text-red-600">*</span>
+                  <label htmlFor="appname" className="block text-sm font-medium text-slate-700 mb-1.5">
+                    お名前 <span className="text-red-700">*</span>
                   </label>
                   <input id="appname" type="text" className="input-base" value={applicantName} onChange={(e) => setApplicantName(e.target.value)} placeholder="山田 太郎" aria-invalid={!!errors.applicantName} autoComplete="name" />
-                  {errors.applicantName && <p className="text-sm text-red-600 mt-1">{errors.applicantName}</p>}
+                  {errors.applicantName && <p className="text-sm text-red-700 mt-1">{errors.applicantName}</p>}
                 </div>
                 <div>
-                  <label htmlFor="appphone" className="block text-sm font-medium text-gray-700 mb-1">
-                    お電話番号 <span className="text-red-600">*</span>
+                  <label htmlFor="appphone" className="block text-sm font-medium text-slate-700 mb-1.5">
+                    お電話番号 <span className="text-red-700">*</span>
                   </label>
                   <input id="appphone" type="tel" inputMode="tel" className="input-base" value={applicantPhone} onChange={(e) => setApplicantPhone(e.target.value)} placeholder="03-1234-5678" aria-invalid={!!errors.applicantPhone} autoComplete="tel" />
-                  {errors.applicantPhone && <p className="text-sm text-red-600 mt-1">{errors.applicantPhone}</p>}
+                  {errors.applicantPhone && <p className="text-sm text-red-700 mt-1">{errors.applicantPhone}</p>}
                 </div>
                 <div className="sm:col-span-2">
-                  <label htmlFor="appemail" className="block text-sm font-medium text-gray-700 mb-1">
-                    メールアドレス <span className="text-red-600">*</span>
+                  <label htmlFor="appemail" className="block text-sm font-medium text-slate-700 mb-1.5">
+                    メールアドレス <span className="text-red-700">*</span>
                   </label>
                   <input id="appemail" type="email" inputMode="email" className="input-base" value={applicantEmail} onChange={(e) => setApplicantEmail(e.target.value)} placeholder="taro@example.com" aria-invalid={!!errors.applicantEmail} autoComplete="email" />
-                  {errors.applicantEmail && <p className="text-sm text-red-600 mt-1">{errors.applicantEmail}</p>}
+                  {errors.applicantEmail && <p className="text-sm text-red-700 mt-1">{errors.applicantEmail}</p>}
                 </div>
               </div>
             </section>
@@ -309,12 +308,13 @@ export default function NendosanteiForm() {
             {/* 顧問先一覧 */}
             <section className="my-6" aria-labelledby="contacts-heading">
               <div className="flex items-baseline justify-between mb-3">
-                <h3 id="contacts-heading" className="text-base sm:text-lg font-bold text-gray-900">
-                  顧問先情報（最大 50 件）
+                <h3 id="contacts-heading" className="text-base font-semibold text-slate-900">
+                  顧問先情報
+                  <span className="ml-2 text-sm font-normal text-slate-500">（最大 50 件）</span>
                 </h3>
-                <span className="text-sm text-gray-500 font-medium">{contacts.length} / {MAX_CONTACTS}</span>
+                <span className="text-sm text-slate-500 tabular-nums">{contacts.length} / {MAX_CONTACTS}</span>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {contacts.map((c, idx) => (
                   <ContactCard
                     key={c.rowIndex}
@@ -327,57 +327,57 @@ export default function NendosanteiForm() {
                   />
                 ))}
               </div>
-              <div className="mt-4 flex flex-col sm:flex-row gap-3">
+              <div className="mt-4 flex flex-col sm:flex-row gap-2">
                 <button
                   type="button"
                   onClick={addContact}
                   disabled={contacts.length >= MAX_CONTACTS}
                   className="btn-secondary"
                 >
-                  + 顧問先を追加 ({contacts.length}/{MAX_CONTACTS})
+                  ＋ 顧問先を追加 <span className="text-slate-400 ml-1">({contacts.length}/{MAX_CONTACTS})</span>
                 </button>
                 <a href="/csv-template/nendosantei-template.csv" download className="btn-ghost text-center">
-                  📥 CSVテンプレDL
+                  CSVテンプレートをDL
                 </a>
                 <label className="btn-ghost text-center cursor-pointer">
-                  📤 CSV一括UP
+                  CSVから一括入力
                   <input ref={csvInputRef} type="file" accept=".csv,text/csv" className="sr-only" onChange={handleCsvUpload} />
                 </label>
               </div>
-              <p className="mt-2 text-xs text-gray-500">
-                ※ CSVテンプレートをダウンロードして編集 → 一括UPで最大50件をまとめて入力できます（ファイルは別途各カードに添付してください）
+              <p className="mt-2 text-xs text-slate-500 leading-relaxed">
+                ※ CSVテンプレートをダウンロードして編集 → 一括入力で最大50件まで読み込めます（ファイルは別途各カードに添付してください）
               </p>
             </section>
 
             <FreeeInviteGuide />
 
             {/* 同意 */}
-            <section className="rounded-2xl bg-white border border-gray-200 p-5 sm:p-6 shadow-sm">
+            <section className="rounded-lg bg-white border border-slate-200 p-5 sm:p-6">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={privacyAgreed}
                   onChange={(e) => setPrivacyAgreed(e.target.checked)}
-                  className="mt-0.5 h-5 w-5 accent-[#298ef2]"
+                  className="mt-0.5 h-4 w-4 accent-slate-900"
                   aria-required="true"
                   aria-invalid={!!errors.privacyAgreed}
                 />
-                <span className="text-sm text-gray-800 leading-relaxed">
-                  <strong>個人情報の取り扱いに同意します</strong>
-                  <span className="block text-xs text-gray-600 mt-1">
+                <span className="text-sm text-slate-800 leading-relaxed">
+                  <span className="font-medium">個人情報の取り扱いに同意します</span>
+                  <span className="block text-xs text-slate-500 mt-1">
                     ご入力いただいた個人情報は、本依頼の遂行および関連連絡のためにのみ使用いたします。詳細は{' '}
-                    <a href="https://spot-s.or.jp/privacy/" target="_blank" rel="noopener noreferrer" className="text-[#298ef2] hover:underline">
+                    <a href="https://spot-s.or.jp/privacy/" target="_blank" rel="noopener noreferrer" className="text-slate-700 underline underline-offset-2 hover:text-slate-900">
                       プライバシーポリシー
                     </a>{' '}
                     をご確認ください。
                   </span>
                 </span>
               </label>
-              {errors.privacyAgreed && <p className="text-sm text-red-600 mt-2">{errors.privacyAgreed}</p>}
+              {errors.privacyAgreed && <p className="text-sm text-red-700 mt-2">{errors.privacyAgreed}</p>}
             </section>
 
             {globalError && (
-              <div className="my-4 rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-800" role="alert">
+              <div className="my-4 rounded-md bg-red-50 border border-red-200 p-4 text-sm text-red-800" role="alert">
                 {globalError}
               </div>
             )}
@@ -386,11 +386,11 @@ export default function NendosanteiForm() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full h-14 sm:h-16 rounded-2xl bg-[#298ef2] hover:bg-[#1d6fc4] text-white text-lg font-bold shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-4 focus-visible:ring-[#298ef2]/30"
+                className="w-full h-12 sm:h-14 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-base font-medium tracking-wide transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
               >
                 {submitting ? '送信中…' : 'この内容で送信する'}
               </button>
-              <p className="mt-3 text-xs text-center text-gray-500">
+              <p className="mt-3 text-xs text-center text-slate-500">
                 送信後、お申込み内容を {applicantEmail || 'ご登録メール'} 宛にお送りします
               </p>
             </div>
@@ -398,8 +398,8 @@ export default function NendosanteiForm() {
         )}
 
         {!submissionMethod && (
-          <p className="mt-6 text-center text-sm text-gray-500">
-            上の3択から「ご希望の提出方法」をお選びください。
+          <p className="mt-6 text-center text-sm text-slate-500">
+            上の3択から、ご希望の提出方法をお選びください。
           </p>
         )}
       </main>

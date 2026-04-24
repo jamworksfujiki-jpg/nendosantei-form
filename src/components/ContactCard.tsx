@@ -43,12 +43,12 @@ function FileField({
 }) {
   return (
     <div>
-      <label htmlFor={fieldId} className="block text-sm font-medium text-gray-700 mb-1">
+      <label htmlFor={fieldId} className="block text-sm font-medium text-slate-700 mb-1.5">
         {label}
-        {required && <span className="text-red-600 ml-1">*</span>}
+        {required && <span className="text-red-700 ml-1">*</span>}
       </label>
-      <div className="flex items-center gap-3 flex-wrap">
-        <label className="btn-secondary inline-flex items-center cursor-pointer">
+      <div className="flex items-center gap-2 flex-wrap">
+        <label className="btn-secondary inline-flex items-center cursor-pointer text-sm">
           <input
             id={fieldId}
             type="file"
@@ -70,16 +70,16 @@ function FileField({
               onChange(f);
             }}
           />
-          <span>{file ? '別のファイルに変更' : 'ファイルを選択'}</span>
+          <span>{file ? '変更' : 'ファイルを選択'}</span>
         </label>
         {file && (
-          <div className="flex items-center gap-2 text-sm text-gray-700 bg-gray-100 px-3 py-1.5 rounded-lg">
-            <span className="font-medium truncate max-w-[200px]" title={file.name}>{file.name}</span>
-            <span className="text-xs text-gray-500">{formatBytes(file.size)}</span>
+          <div className="flex items-center gap-2 text-sm text-slate-700 bg-slate-100 px-3 py-1.5 rounded-md">
+            <span className="font-medium truncate max-w-[180px]" title={file.name}>{file.name}</span>
+            <span className="text-xs text-slate-500">{formatBytes(file.size)}</span>
             <button
               type="button"
               onClick={() => onChange(null)}
-              className="text-red-600 hover:text-red-700 font-bold text-lg leading-none px-1"
+              className="text-slate-500 hover:text-red-700 font-bold text-base leading-none px-1 -my-1"
               aria-label="ファイルを削除"
             >
               ×
@@ -87,7 +87,7 @@ function FileField({
           </div>
         )}
       </div>
-      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
+      {error && <p className="text-sm text-red-700 mt-1">{error}</p>}
     </div>
   );
 }
@@ -95,17 +95,17 @@ function FileField({
 export default function ContactCard({ contact, index, total, onUpdate, onRemove, errors }: Props) {
   const idBase = `c${contact.rowIndex}`;
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm">
+    <div className="rounded-lg border border-slate-200 bg-white p-5 sm:p-6">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-base font-bold text-gray-900">
+        <h4 className="text-sm font-semibold text-slate-900">
           顧問先 #{index + 1}
-          <span className="ml-2 text-xs font-normal text-gray-500">({index + 1} / {total})</span>
+          <span className="ml-2 text-xs font-normal text-slate-400">({index + 1} / {total})</span>
         </h4>
         {total > 1 && (
           <button
             type="button"
             onClick={() => onRemove(contact.rowIndex)}
-            className="text-sm text-red-600 hover:text-red-700 px-3 py-1 rounded-lg hover:bg-red-50 transition-colors"
+            className="text-xs text-slate-500 hover:text-red-700 px-2.5 py-1 rounded transition-colors"
             aria-label={`顧問先 #${index + 1} を削除`}
           >
             × 削除
@@ -114,8 +114,8 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor={`${idBase}-company`} className="block text-sm font-medium text-gray-700 mb-1">
-            紹介会社名 <span className="text-red-600">*</span>
+          <label htmlFor={`${idBase}-company`} className="block text-sm font-medium text-slate-700 mb-1.5">
+            紹介会社名 <span className="text-red-700">*</span>
           </label>
           <input
             id={`${idBase}-company`}
@@ -127,11 +127,11 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
             aria-invalid={!!errors?.companyName}
             autoComplete="organization"
           />
-          {errors?.companyName && <p className="text-sm text-red-600 mt-1">{errors.companyName}</p>}
+          {errors?.companyName && <p className="text-sm text-red-700 mt-1">{errors.companyName}</p>}
         </div>
         <div>
-          <label htmlFor={`${idBase}-contact`} className="block text-sm font-medium text-gray-700 mb-1">
-            ご担当者名 <span className="text-red-600">*</span>
+          <label htmlFor={`${idBase}-contact`} className="block text-sm font-medium text-slate-700 mb-1.5">
+            ご担当者名 <span className="text-red-700">*</span>
           </label>
           <input
             id={`${idBase}-contact`}
@@ -143,11 +143,11 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
             aria-invalid={!!errors?.contactName}
             autoComplete="name"
           />
-          {errors?.contactName && <p className="text-sm text-red-600 mt-1">{errors.contactName}</p>}
+          {errors?.contactName && <p className="text-sm text-red-700 mt-1">{errors.contactName}</p>}
         </div>
         <div>
-          <label htmlFor={`${idBase}-phone`} className="block text-sm font-medium text-gray-700 mb-1">
-            お電話番号 <span className="text-red-600">*</span>
+          <label htmlFor={`${idBase}-phone`} className="block text-sm font-medium text-slate-700 mb-1.5">
+            お電話番号 <span className="text-red-700">*</span>
           </label>
           <input
             id={`${idBase}-phone`}
@@ -160,11 +160,11 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
             aria-invalid={!!errors?.phone}
             autoComplete="tel"
           />
-          {errors?.phone && <p className="text-sm text-red-600 mt-1">{errors.phone}</p>}
+          {errors?.phone && <p className="text-sm text-red-700 mt-1">{errors.phone}</p>}
         </div>
         <div>
-          <label htmlFor={`${idBase}-email`} className="block text-sm font-medium text-gray-700 mb-1">
-            連絡先メールアドレス <span className="text-red-600">*</span>
+          <label htmlFor={`${idBase}-email`} className="block text-sm font-medium text-slate-700 mb-1.5">
+            連絡先メールアドレス <span className="text-red-700">*</span>
           </label>
           <input
             id={`${idBase}-email`}
@@ -177,10 +177,10 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
             aria-invalid={!!errors?.email}
             autoComplete="email"
           />
-          {errors?.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
+          {errors?.email && <p className="text-sm text-red-700 mt-1">{errors.email}</p>}
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 pt-5 border-t border-slate-100">
         <FileField
           label="算定基礎届"
           file={contact.santeiFile}
