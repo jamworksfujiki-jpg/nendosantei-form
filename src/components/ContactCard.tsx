@@ -43,9 +43,9 @@ function FileField({
 }) {
   return (
     <div>
-      <label htmlFor={fieldId} className="block text-sm font-medium text-slate-700 mb-1.5">
+      <label htmlFor={fieldId} className="block text-sm font-semibold text-slate-800 mb-2">
         {label}
-        {required && <span className="text-red-700 ml-1">*</span>}
+        {required && <span className="badge-required">必須</span>}
       </label>
       <div className="flex items-center gap-2 flex-wrap">
         <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer text-sm">
@@ -76,7 +76,7 @@ function FileField({
           <span>{file ? '変更' : 'ファイルを選択'}</span>
         </label>
         {file && (
-          <div className="flex items-center gap-2 text-sm text-slate-700 bg-slate-100 px-3 py-1.5 rounded-md">
+          <div className="flex items-center gap-2 text-sm text-slate-700 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-md">
             <span className="font-medium truncate max-w-[180px]" title={file.name}>{file.name}</span>
             <span className="text-xs text-slate-500">{formatBytes(file.size)}</span>
             <button
@@ -90,7 +90,8 @@ function FileField({
           </div>
         )}
       </div>
-      {error && <p className="text-sm text-red-700 mt-1">{error}</p>}
+      <p className="text-xs text-slate-500 mt-1.5">対応形式: PDF / Excel / PNG / JPEG（各5MBまで）</p>
+      {error && <p className="text-sm text-red-600 mt-1.5">⚠ {error}</p>}
     </div>
   );
 }
@@ -98,27 +99,32 @@ function FileField({
 export default function ContactCard({ contact, index, total, onUpdate, onRemove, errors }: Props) {
   const idBase = `c${contact.rowIndex}`;
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5 sm:p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="text-sm font-semibold text-slate-900">
-          顧問先 #{index + 1}
-          <span className="ml-2 text-xs font-normal text-slate-400">({index + 1} / {total})</span>
-        </h4>
+    <div className="rounded-lg border-2 border-slate-200 bg-white overflow-hidden">
+      <div className="flex items-center justify-between px-4 sm:px-5 py-3 bg-blue-50 border-b border-blue-100">
+        <div className="flex items-center gap-2.5">
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold">
+            {index + 1}
+          </span>
+          <h4 className="text-sm font-bold text-slate-900">
+            顧問先 {index + 1} 社目
+          </h4>
+        </div>
         {total > 1 && (
           <button
             type="button"
             onClick={() => onRemove(contact.rowIndex)}
-            className="text-xs text-slate-500 hover:text-red-700 px-2.5 py-1 rounded transition-colors"
-            aria-label={`顧問先 #${index + 1} を削除`}
+            className="text-xs text-slate-600 hover:text-red-700 px-2.5 py-1 rounded transition-colors"
+            aria-label={`顧問先 ${index + 1} 社目 を削除`}
           >
             × 削除
           </button>
         )}
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="p-4 sm:p-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
         <div>
-          <label htmlFor={`${idBase}-company`} className="block text-sm font-medium text-slate-700 mb-1.5">
-            紹介会社名 <span className="text-red-700">*</span>
+          <label htmlFor={`${idBase}-company`} className="block text-sm font-semibold text-slate-800 mb-2">
+            紹介会社名<span className="badge-required">必須</span>
           </label>
           <input
             id={`${idBase}-company`}
@@ -126,15 +132,15 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
             className="input-base"
             value={contact.companyName}
             onChange={(e) => onUpdate(contact.rowIndex, { companyName: e.target.value })}
-            placeholder="株式会社○○"
+            placeholder="例）株式会社○○"
             aria-invalid={!!errors?.companyName}
             autoComplete="organization"
           />
-          {errors?.companyName && <p className="text-sm text-red-700 mt-1">{errors.companyName}</p>}
+          {errors?.companyName && <p className="text-sm text-red-600 mt-1.5">⚠ {errors.companyName}</p>}
         </div>
         <div>
-          <label htmlFor={`${idBase}-contact`} className="block text-sm font-medium text-slate-700 mb-1.5">
-            ご担当者名 <span className="text-red-700">*</span>
+          <label htmlFor={`${idBase}-contact`} className="block text-sm font-semibold text-slate-800 mb-2">
+            ご担当者名<span className="badge-required">必須</span>
           </label>
           <input
             id={`${idBase}-contact`}
@@ -142,15 +148,15 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
             className="input-base"
             value={contact.contactName}
             onChange={(e) => onUpdate(contact.rowIndex, { contactName: e.target.value })}
-            placeholder="山田 太郎"
+            placeholder="例）山田 太郎"
             aria-invalid={!!errors?.contactName}
             autoComplete="name"
           />
-          {errors?.contactName && <p className="text-sm text-red-700 mt-1">{errors.contactName}</p>}
+          {errors?.contactName && <p className="text-sm text-red-600 mt-1.5">⚠ {errors.contactName}</p>}
         </div>
         <div>
-          <label htmlFor={`${idBase}-phone`} className="block text-sm font-medium text-slate-700 mb-1.5">
-            お電話番号 <span className="text-red-700">*</span>
+          <label htmlFor={`${idBase}-phone`} className="block text-sm font-semibold text-slate-800 mb-2">
+            お電話番号<span className="badge-required">必須</span>
           </label>
           <input
             id={`${idBase}-phone`}
@@ -159,15 +165,15 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
             className="input-base"
             value={contact.phone}
             onChange={(e) => onUpdate(contact.rowIndex, { phone: e.target.value })}
-            placeholder="03-1234-5678"
+            placeholder="例）03-1234-5678"
             aria-invalid={!!errors?.phone}
             autoComplete="tel"
           />
-          {errors?.phone && <p className="text-sm text-red-700 mt-1">{errors.phone}</p>}
+          {errors?.phone && <p className="text-sm text-red-600 mt-1.5">⚠ {errors.phone}</p>}
         </div>
         <div>
-          <label htmlFor={`${idBase}-email`} className="block text-sm font-medium text-slate-700 mb-1.5">
-            連絡先メールアドレス <span className="text-red-700">*</span>
+          <label htmlFor={`${idBase}-email`} className="block text-sm font-semibold text-slate-800 mb-2">
+            連絡先メールアドレス<span className="badge-required">必須</span>
           </label>
           <input
             id={`${idBase}-email`}
@@ -176,57 +182,57 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
             className="input-base"
             value={contact.email}
             onChange={(e) => onUpdate(contact.rowIndex, { email: e.target.value })}
-            placeholder="example@example.com"
+            placeholder="例）example@example.com"
             aria-invalid={!!errors?.email}
             autoComplete="email"
           />
-          {errors?.email && <p className="text-sm text-red-700 mt-1">{errors.email}</p>}
+          {errors?.email && <p className="text-sm text-red-600 mt-1.5">⚠ {errors.email}</p>}
         </div>
       </div>
       <div className="mt-5 pt-5 border-t border-slate-100">
-        <p className="text-sm font-medium text-slate-700 mb-2">
-          ご依頼内容 <span className="text-red-700">*</span>
+        <p className="text-sm font-semibold text-slate-800 mb-2">
+          ご依頼内容<span className="badge-required">必須</span>
           <span className="ml-2 text-xs font-normal text-slate-500">（1つ以上選択・各9,900円）</span>
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <label className={
-            'flex items-center gap-3 px-4 h-12 rounded-md border cursor-pointer transition-colors ' +
+            'flex items-center gap-3 px-4 h-14 rounded-md border-2 cursor-pointer transition-colors ' +
             (contact.needsNendoKoshin
               ? 'border-blue-600 bg-blue-50 text-blue-900'
-              : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50')
+              : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/30')
           }>
             <input
               type="checkbox"
               checked={contact.needsNendoKoshin}
               onChange={(e) => onUpdate(contact.rowIndex, { needsNendoKoshin: e.target.checked })}
-              className="h-4 w-4 accent-blue-600"
+              className="h-5 w-5 accent-blue-600"
               aria-invalid={!!errors?.needsNendoKoshin}
             />
-            <span className="text-sm font-medium">年度更新</span>
-            <span className="ml-auto text-xs tabular-nums">¥9,900</span>
+            <span className="text-sm font-semibold">年度更新</span>
+            <span className="ml-auto text-sm font-bold tabular-nums">¥9,900</span>
           </label>
           <label className={
-            'flex items-center gap-3 px-4 h-12 rounded-md border cursor-pointer transition-colors ' +
+            'flex items-center gap-3 px-4 h-14 rounded-md border-2 cursor-pointer transition-colors ' +
             (contact.needsSantei
               ? 'border-blue-600 bg-blue-50 text-blue-900'
-              : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50')
+              : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/30')
           }>
             <input
               type="checkbox"
               checked={contact.needsSantei}
               onChange={(e) => onUpdate(contact.rowIndex, { needsSantei: e.target.checked })}
-              className="h-4 w-4 accent-blue-600"
+              className="h-5 w-5 accent-blue-600"
             />
-            <span className="text-sm font-medium">算定基礎届</span>
-            <span className="ml-auto text-xs tabular-nums">¥9,900</span>
+            <span className="text-sm font-semibold">算定基礎届</span>
+            <span className="ml-auto text-sm font-bold tabular-nums">¥9,900</span>
           </label>
         </div>
         {errors?.needsNendoKoshin && (
-          <p className="text-sm text-red-700 mt-2">{errors.needsNendoKoshin}</p>
+          <p className="text-sm text-red-600 mt-2">⚠ {errors.needsNendoKoshin}</p>
         )}
       </div>
       {(contact.needsNendoKoshin || contact.needsSantei) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 pt-5 border-t border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mt-5 pt-5 border-t border-slate-100">
           {contact.needsNendoKoshin && (
             <FileField
               label="労働保険料申告書"
@@ -249,6 +255,7 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

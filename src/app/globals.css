@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #0f172a;
-  --color-surface: #fafafa;
+  --color-surface: #f5f7fa;
   --color-card: #ffffff;
   --color-text: #0f172a;
   --color-text-secondary: #475569;
@@ -47,16 +47,49 @@ input[type="checkbox"], input[type="radio"] {
   min-height: 18px;
 }
 
-/* 入力フィールド共通 */
+/* 入力フィールド共通（保険フォーム風に少し大きめ） */
 .input-base {
-  @apply w-full h-11 px-3.5 rounded-md border border-gray-300 bg-white;
-  @apply focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400;
+  @apply w-full h-12 px-4 rounded-md border border-slate-300 bg-white;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500;
   @apply text-base text-slate-900 placeholder-slate-400;
   @apply transition-all duration-150;
 }
 
 .input-base[aria-invalid="true"] {
-  @apply border-red-500 focus:ring-red-500/20 focus:border-red-500;
+  @apply border-red-500 bg-red-50/30 focus:ring-red-500/20 focus:border-red-500;
+}
+
+/* 必須・任意バッジ */
+.badge-required {
+  @apply inline-block px-2 py-0.5 rounded text-[10px] font-bold tracking-wider text-white bg-red-600 align-middle ml-1.5;
+}
+
+.badge-optional {
+  @apply inline-block px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider text-slate-500 bg-slate-100 border border-slate-300 align-middle ml-1.5;
+}
+
+/* セクションカード（保険フォーム風） */
+.section-card {
+  @apply rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm;
+}
+
+.section-header {
+  @apply flex items-start gap-3 sm:gap-4 px-5 sm:px-6 py-4 sm:py-5 bg-slate-50 border-b border-slate-200;
+}
+
+.section-body {
+  @apply px-5 sm:px-6 py-5 sm:py-6;
+}
+
+/* STEP バッジ */
+.step-badge {
+  @apply inline-flex flex-col items-center justify-center w-11 h-11 rounded-full bg-blue-600 text-white shrink-0 leading-none;
+}
+.step-badge-label {
+  @apply text-[9px] font-semibold tracking-wider uppercase opacity-80;
+}
+.step-badge-number {
+  @apply text-base font-bold;
 }
 
 .btn-primary {

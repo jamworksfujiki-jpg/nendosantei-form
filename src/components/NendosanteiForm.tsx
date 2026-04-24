@@ -167,60 +167,67 @@ export default function NendosanteiForm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {/* ヘッダ */}
-        <header className="mb-10">
-          <div className="flex items-center justify-between mb-8 gap-4">
-            <Image
-              src="/spot-logo.png"
-              alt="スポット社労士くん"
-              width={200}
-              height={47}
-              priority
-            />
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-600 px-2.5 py-1 rounded-full border border-slate-300 bg-white tabular-nums">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden></span>
-              受付中
-            </span>
-          </div>
-          <div className="relative">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="block w-8 h-px bg-slate-900" aria-hidden />
-              <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-[0.22em]">
-                ご依頼フォーム
-              </span>
-              <span className="text-[11px] text-slate-400 tabular-nums">2026年度</span>
-            </div>
-            <h1 className="text-[26px] sm:text-[32px] font-semibold text-slate-900 leading-[1.25] tracking-tight">
-              会計事務所様へのご依頼
-            </h1>
-            <p className="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
-              <span className="text-slate-900 font-medium">年度更新・算定基礎届</span>
-              <span className="text-slate-300 mx-2.5" aria-hidden>／</span>
-              <span>代行受付フォーム</span>
-            </p>
-            <div className="mt-6 pt-5 border-t border-slate-200/80 text-[13px] text-slate-500 leading-relaxed">
-              スポット社労士くんが、会計事務所様の顧問先の年度更新・算定基礎届を一括で代行いたします。
-            </div>
-          </div>
-        </header>
+    <div className="min-h-screen">
+      {/* 上部ロゴバー */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+          <Image
+            src="/spot-logo.png"
+            alt="スポット社労士くん"
+            width={180}
+            height={42}
+            priority
+          />
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden></span>
+            ただいま受付中
+          </span>
+        </div>
+      </div>
+
+      {/* タイトルバナー */}
+      <div className="bg-gradient-to-br from-blue-700 to-blue-600 text-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.2em] text-blue-100 mb-2">
+            2026年度　会計事務所様向け
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight">
+            年度更新・算定基礎届<br className="sm:hidden" />
+            <span className="sm:ml-2">ご依頼フォーム</span>
+          </h1>
+          <p className="mt-3 text-sm text-blue-100 leading-relaxed">
+            スポット社労士くんが、会計事務所様の顧問先の年度更新・算定基礎届を一括で代行いたします。
+          </p>
+        </div>
+      </div>
+
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-6">
 
         {/* 紹介条件 */}
-        <section className="bg-white rounded-lg border border-slate-200 p-5 sm:p-6">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
-            ご紹介いただける顧問先の条件
-          </h2>
-          <ul className="space-y-3 text-sm text-slate-700 leading-relaxed">
-            <li className="flex gap-3">
-              <span className="shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-center">1</span>
-              <span>2025/4/1〜2026/3/31 まで <span className="font-medium text-slate-900">freee人事労務</span> で給与計算を確定し利用している会計事務所の顧問先</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-center">2</span>
-              <span>役員、パート・アルバイトを含み <span className="font-medium text-slate-900">30名以下</span> の顧問先（年度内で30名を超えたタイミングがあるケースは対象外）</span>
-            </li>
-          </ul>
+        <section className="section-card">
+          <div className="section-header">
+            <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border-2 border-blue-600 text-blue-600 text-[10px] font-bold">
+              条件
+            </span>
+            <div>
+              <h2 className="text-base font-bold text-slate-900">
+                ご紹介いただける顧問先の条件
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">以下すべてを満たす顧問先様が対象です</p>
+            </div>
+          </div>
+          <div className="section-body">
+            <ul className="space-y-3 text-sm text-slate-700 leading-relaxed">
+              <li className="flex gap-3">
+                <span className="shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">1</span>
+                <span>2025/4/1〜2026/3/31 まで <span className="font-semibold text-slate-900">freee人事労務</span> で給与計算を確定し利用している会計事務所の顧問先</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">2</span>
+                <span>役員、パート・アルバイトを含み <span className="font-semibold text-slate-900">30名以下</span> の顧問先（年度内で30名を超えたタイミングがあるケースは対象外）</span>
+              </li>
+            </ul>
+          </div>
         </section>
 
         <PriceBadge />
@@ -233,210 +240,279 @@ export default function NendosanteiForm() {
           <p className="text-sm text-red-700 -mt-3 mb-3 ml-1">{errors.deadlineAcknowledged}</p>
         )}
 
-        {/* 提出方法選択 */}
-        <section className="my-8" aria-labelledby="submission-heading">
-          <h2 id="submission-heading" className="text-base font-semibold text-slate-900 mb-3">
-            提出方法をお選びください
-          </h2>
-          <div role="radiogroup" aria-labelledby="submission-heading" className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {([
-              { v: 'paper' as const, label: '紙で送付' },
-              { v: 'email' as const, label: 'メールで送信' },
-              { v: 'form' as const, label: 'フォームから入力' },
-            ]).map((opt) => {
-              const selected = submissionMethod === opt.v;
-              return (
-                <button
-                  key={opt.v}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  onClick={() => setSubmissionMethod(opt.v)}
-                  className={
-                    'h-12 px-4 rounded-md border text-sm transition-all text-center ' +
-                    (selected
-                      ? 'border-blue-600 bg-blue-600 text-white font-medium'
-                      : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50')
-                  }
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
+        {/* STEP 1: 提出方法選択 */}
+        <section className="section-card" aria-labelledby="submission-heading">
+          <div className="section-header">
+            <span className="step-badge">
+              <span className="step-badge-label">STEP</span>
+              <span className="step-badge-number">1</span>
+            </span>
+            <div>
+              <h2 id="submission-heading" className="text-base font-bold text-slate-900">
+                提出方法を選択<span className="badge-required">必須</span>
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">ご希望の提出方法をお選びください</p>
+            </div>
+          </div>
+          <div className="section-body">
+            <div role="radiogroup" aria-labelledby="submission-heading" className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {([
+                { v: 'paper' as const, label: '紙で送付', desc: '郵送・FAX' },
+                { v: 'email' as const, label: 'メールで送信', desc: '添付で送る' },
+                { v: 'form' as const, label: 'フォームから入力', desc: 'このフォームで完結' },
+              ]).map((opt) => {
+                const selected = submissionMethod === opt.v;
+                return (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => setSubmissionMethod(opt.v)}
+                    className={
+                      'h-auto min-h-[72px] px-4 py-3 rounded-lg border-2 transition-all text-center ' +
+                      (selected
+                        ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-sm'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/30')
+                    }
+                  >
+                    <span className="block text-sm font-semibold">{opt.label}</span>
+                    <span className="block text-[11px] mt-0.5 opacity-70">{opt.desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {!submissionMethod && (
+              <p className="mt-3 text-xs text-slate-500 text-center">
+                上の3つから、ご希望の提出方法をお選びください
+              </p>
+            )}
           </div>
         </section>
 
         {/* 紙 */}
         {submissionMethod === 'paper' && (
-          <section className="rounded-lg bg-white border border-slate-200 p-5 sm:p-6">
-            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">送付先</h3>
-            <div className="text-sm text-slate-800 leading-relaxed space-y-1">
-              <p className="font-medium text-slate-900">スポット社労士くん社会保険労務士法人　油井 宛</p>
-              <p>〒102-0075 東京都千代田区三番町3-8 泉館三番町6F</p>
-              <p>TEL: <a href="tel:0362726183" className="text-slate-900 underline underline-offset-4 decoration-slate-300 hover:decoration-slate-900">03-6272-6183</a></p>
+          <section className="section-card">
+            <div className="section-header">
+              <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border-2 border-slate-400 text-slate-600 text-[10px] font-bold">
+                送付先
+              </span>
+              <h3 className="text-base font-bold text-slate-900">郵送先のご案内</h3>
             </div>
-            <p className="mt-4 text-sm text-slate-600">
-              算定基礎届・労働保険料申告書を上記住所までお送りください。
-            </p>
+            <div className="section-body">
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-4 text-sm text-slate-800 leading-relaxed space-y-1.5">
+                <p className="font-semibold text-slate-900">スポット社労士くん社会保険労務士法人　油井 宛</p>
+                <p>〒102-0075 東京都千代田区三番町3-8 泉館三番町6F</p>
+                <p>TEL: <a href="tel:0362726183" className="text-blue-700 underline underline-offset-4 decoration-blue-300 hover:decoration-blue-700 font-medium">03-6272-6183</a></p>
+              </div>
+              <p className="mt-4 text-sm text-slate-600">
+                算定基礎届・労働保険料申告書を上記住所までお送りください。
+              </p>
+            </div>
           </section>
         )}
 
         {/* メール */}
         {submissionMethod === 'email' && (
-          <section className="rounded-lg bg-white border border-slate-200 p-5 sm:p-6">
-            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">送信先メールアドレス</h3>
-            <p className="text-lg text-slate-900 font-medium">
-              <a href="mailto:yui@spot-s.or.jp" className="underline underline-offset-4 decoration-slate-300 hover:decoration-slate-900">yui@spot-s.or.jp</a>
-            </p>
-            <p className="mt-3 text-sm text-slate-600">
-              算定基礎届・労働保険料申告書を上記アドレスまでメール送信してください。件名に「年度更新・算定基礎届のご依頼」とご記入ください。
-            </p>
+          <section className="section-card">
+            <div className="section-header">
+              <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border-2 border-slate-400 text-slate-600 text-[10px] font-bold">
+                送信先
+              </span>
+              <h3 className="text-base font-bold text-slate-900">メール送信先のご案内</h3>
+            </div>
+            <div className="section-body">
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-4">
+                <p className="text-lg sm:text-xl text-slate-900 font-semibold">
+                  <a href="mailto:yui@spot-s.or.jp" className="text-blue-700 underline underline-offset-4 decoration-blue-300 hover:decoration-blue-700">yui@spot-s.or.jp</a>
+                </p>
+              </div>
+              <p className="mt-4 text-sm text-slate-600 leading-relaxed">
+                算定基礎届・労働保険料申告書を上記アドレスまでメール送信してください。<br />
+                件名に<span className="font-semibold text-slate-900">「年度更新・算定基礎届のご依頼」</span>とご記入ください。
+              </p>
+            </div>
           </section>
         )}
 
         {/* フォーム */}
         {submissionMethod === 'form' && (
-          <form onSubmit={handleSubmit} noValidate>
-            {/* 申込者情報 */}
-            <section className="rounded-lg bg-white border border-slate-200 p-5 sm:p-6" aria-labelledby="applicant-heading">
-              <h3 id="applicant-heading" className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
-                ご担当者様情報（会計事務所）
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2">
-                  <label htmlFor="ofcname" className="block text-sm font-medium text-slate-700 mb-1.5">会計事務所名</label>
-                  <input id="ofcname" type="text" className="input-base" value={applicantOfficeName} onChange={(e) => setApplicantOfficeName(e.target.value)} placeholder="○○会計事務所" autoComplete="organization" />
-                </div>
+          <form onSubmit={handleSubmit} noValidate className="space-y-6">
+            {/* STEP 2: ご担当者様情報 */}
+            <section className="section-card" aria-labelledby="applicant-heading">
+              <div className="section-header">
+                <span className="step-badge">
+                  <span className="step-badge-label">STEP</span>
+                  <span className="step-badge-number">2</span>
+                </span>
                 <div>
-                  <label htmlFor="appname" className="block text-sm font-medium text-slate-700 mb-1.5">
-                    お名前 <span className="text-red-700">*</span>
-                  </label>
-                  <input id="appname" type="text" className="input-base" value={applicantName} onChange={(e) => setApplicantName(e.target.value)} placeholder="山田 太郎" aria-invalid={!!errors.applicantName} autoComplete="name" />
-                  {errors.applicantName && <p className="text-sm text-red-700 mt-1">{errors.applicantName}</p>}
+                  <h3 id="applicant-heading" className="text-base font-bold text-slate-900">
+                    ご担当者様情報
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">会計事務所のご担当者様の情報をご入力ください</p>
                 </div>
-                <div>
-                  <label htmlFor="appphone" className="block text-sm font-medium text-slate-700 mb-1.5">
-                    お電話番号 <span className="text-red-700">*</span>
-                  </label>
-                  <input id="appphone" type="tel" inputMode="tel" className="input-base" value={applicantPhone} onChange={(e) => setApplicantPhone(e.target.value)} placeholder="03-1234-5678" aria-invalid={!!errors.applicantPhone} autoComplete="tel" />
-                  {errors.applicantPhone && <p className="text-sm text-red-700 mt-1">{errors.applicantPhone}</p>}
-                </div>
-                <div className="sm:col-span-2">
-                  <label htmlFor="appemail" className="block text-sm font-medium text-slate-700 mb-1.5">
-                    メールアドレス <span className="text-red-700">*</span>
-                  </label>
-                  <input id="appemail" type="email" inputMode="email" className="input-base" value={applicantEmail} onChange={(e) => setApplicantEmail(e.target.value)} placeholder="taro@example.com" aria-invalid={!!errors.applicantEmail} autoComplete="email" />
-                  {errors.applicantEmail && <p className="text-sm text-red-700 mt-1">{errors.applicantEmail}</p>}
+              </div>
+              <div className="section-body">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  <div className="sm:col-span-2">
+                    <label htmlFor="ofcname" className="block text-sm font-semibold text-slate-800 mb-2">
+                      会計事務所名<span className="badge-optional">任意</span>
+                    </label>
+                    <input id="ofcname" type="text" className="input-base" value={applicantOfficeName} onChange={(e) => setApplicantOfficeName(e.target.value)} placeholder="例）○○会計事務所" autoComplete="organization" />
+                  </div>
+                  <div>
+                    <label htmlFor="appname" className="block text-sm font-semibold text-slate-800 mb-2">
+                      ご担当者様 お名前<span className="badge-required">必須</span>
+                    </label>
+                    <input id="appname" type="text" className="input-base" value={applicantName} onChange={(e) => setApplicantName(e.target.value)} placeholder="例）山田 太郎" aria-invalid={!!errors.applicantName} autoComplete="name" />
+                    {errors.applicantName && <p className="text-sm text-red-600 mt-1.5">⚠ {errors.applicantName}</p>}
+                  </div>
+                  <div>
+                    <label htmlFor="appphone" className="block text-sm font-semibold text-slate-800 mb-2">
+                      お電話番号<span className="badge-required">必須</span>
+                    </label>
+                    <input id="appphone" type="tel" inputMode="tel" className="input-base" value={applicantPhone} onChange={(e) => setApplicantPhone(e.target.value)} placeholder="例）03-1234-5678" aria-invalid={!!errors.applicantPhone} autoComplete="tel" />
+                    {errors.applicantPhone && <p className="text-sm text-red-600 mt-1.5">⚠ {errors.applicantPhone}</p>}
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label htmlFor="appemail" className="block text-sm font-semibold text-slate-800 mb-2">
+                      メールアドレス<span className="badge-required">必須</span>
+                    </label>
+                    <input id="appemail" type="email" inputMode="email" className="input-base" value={applicantEmail} onChange={(e) => setApplicantEmail(e.target.value)} placeholder="例）taro@example.com" aria-invalid={!!errors.applicantEmail} autoComplete="email" />
+                    <p className="text-xs text-slate-500 mt-1.5">お申込み完了後、確認メールをお送りします</p>
+                    {errors.applicantEmail && <p className="text-sm text-red-600 mt-1.5">⚠ {errors.applicantEmail}</p>}
+                  </div>
                 </div>
               </div>
             </section>
 
-            {/* 顧問先一覧 */}
-            <section className="my-6" aria-labelledby="contacts-heading">
-              <div className="flex items-baseline justify-between mb-3">
-                <h3 id="contacts-heading" className="text-base font-semibold text-slate-900">
-                  顧問先情報
-                  <span className="ml-2 text-sm font-normal text-slate-500">（最大 50 件）</span>
-                </h3>
-                <span className="text-sm text-slate-500 tabular-nums">{contacts.length} / {MAX_CONTACTS}</span>
+            {/* STEP 3: 顧問先情報 */}
+            <section className="section-card" aria-labelledby="contacts-heading">
+              <div className="section-header">
+                <span className="step-badge">
+                  <span className="step-badge-label">STEP</span>
+                  <span className="step-badge-number">3</span>
+                </span>
+                <div className="flex-1">
+                  <h3 id="contacts-heading" className="text-base font-bold text-slate-900">
+                    顧問先情報<span className="badge-required">必須</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">ご依頼される顧問先様の情報を入力（最大50件）</p>
+                </div>
+                <span className="shrink-0 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-full px-3 py-1 tabular-nums">
+                  {contacts.length} / {MAX_CONTACTS}
+                </span>
               </div>
-              <div className="space-y-3">
-                {contacts.map((c, idx) => (
-                  <ContactCard
-                    key={c.rowIndex}
-                    contact={c}
-                    index={idx}
-                    total={contacts.length}
-                    onUpdate={updateContact}
-                    onRemove={removeContact}
-                    errors={contactErrors[c.rowIndex] as Partial<Record<keyof ContactRow, string>> | undefined}
-                  />
-                ))}
+              <div className="section-body">
+                <div className="space-y-3">
+                  {contacts.map((c, idx) => (
+                    <ContactCard
+                      key={c.rowIndex}
+                      contact={c}
+                      index={idx}
+                      total={contacts.length}
+                      onUpdate={updateContact}
+                      onRemove={removeContact}
+                      errors={contactErrors[c.rowIndex] as Partial<Record<keyof ContactRow, string>> | undefined}
+                    />
+                  ))}
+                </div>
+                <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                  <button
+                    type="button"
+                    onClick={addContact}
+                    disabled={contacts.length >= MAX_CONTACTS}
+                    className="btn-secondary inline-flex items-center justify-center gap-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-4 h-4 shrink-0" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    <span>顧問先を追加</span>
+                  </button>
+                  <a href="/csv-template/nendosantei-template.csv" download className="btn-ghost inline-flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" className="w-4 h-4 shrink-0" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    <span>CSVテンプレートをDL</span>
+                  </a>
+                  <label className="btn-ghost inline-flex items-center justify-center gap-2 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" className="w-4 h-4 shrink-0" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                    </svg>
+                    <span>CSVから一括入力</span>
+                    <input ref={csvInputRef} type="file" accept=".csv,text/csv" className="sr-only" onChange={handleCsvUpload} />
+                  </label>
+                </div>
+                <p className="mt-2.5 text-xs text-slate-500 leading-relaxed">
+                  ※ CSVテンプレートをダウンロードして編集 → 一括入力で最大50件まで読み込めます（ファイルは別途各カードに添付してください）
+                </p>
               </div>
-              <div className="mt-4 flex flex-col sm:flex-row gap-2">
-                <button
-                  type="button"
-                  onClick={addContact}
-                  disabled={contacts.length >= MAX_CONTACTS}
-                  className="btn-secondary inline-flex items-center justify-center gap-2"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-4 h-4 shrink-0" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
-                  <span>顧問先を追加</span>
-                  <span className="text-slate-400 ml-0.5">({contacts.length}/{MAX_CONTACTS})</span>
-                </button>
-                <a href="/csv-template/nendosantei-template.csv" download className="btn-ghost inline-flex items-center justify-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" className="w-4 h-4 shrink-0" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                  </svg>
-                  <span>CSVテンプレートをDL</span>
-                </a>
-                <label className="btn-ghost inline-flex items-center justify-center gap-2 cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" className="w-4 h-4 shrink-0" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                  </svg>
-                  <span>CSVから一括入力</span>
-                  <input ref={csvInputRef} type="file" accept=".csv,text/csv" className="sr-only" onChange={handleCsvUpload} />
-                </label>
-              </div>
-              <p className="mt-2 text-xs text-slate-500 leading-relaxed">
-                ※ CSVテンプレートをダウンロードして編集 → 一括入力で最大50件まで読み込めます（ファイルは別途各カードに添付してください）
-              </p>
             </section>
 
             <FreeeInviteGuide />
 
-            {/* 同意 */}
-            <section className="rounded-lg bg-white border border-slate-200 p-5 sm:p-6">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={privacyAgreed}
-                  onChange={(e) => setPrivacyAgreed(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 accent-slate-900"
-                  aria-required="true"
-                  aria-invalid={!!errors.privacyAgreed}
-                />
-                <span className="text-sm text-slate-800 leading-relaxed">
-                  <span className="font-medium">個人情報の取り扱いに同意します</span>
-                  <span className="block text-xs text-slate-500 mt-1">
-                    ご入力いただいた個人情報は、本依頼の遂行および関連連絡のためにのみ使用いたします。詳細は{' '}
-                    <a href="https://spot-s.or.jp/privacy/" target="_blank" rel="noopener noreferrer" className="text-slate-700 underline underline-offset-2 hover:text-slate-900">
-                      プライバシーポリシー
-                    </a>{' '}
-                    をご確認ください。
-                  </span>
+            {/* STEP 4: 同意・送信 */}
+            <section className="section-card">
+              <div className="section-header">
+                <span className="step-badge">
+                  <span className="step-badge-label">STEP</span>
+                  <span className="step-badge-number">4</span>
                 </span>
-              </label>
-              {errors.privacyAgreed && <p className="text-sm text-red-700 mt-2">{errors.privacyAgreed}</p>}
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    ご確認・送信<span className="badge-required">必須</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">最後にご確認のうえ送信ください</p>
+                </div>
+              </div>
+              <div className="section-body">
+                <label className="flex items-start gap-3 p-4 rounded-lg border-2 border-slate-200 bg-slate-50 hover:bg-white hover:border-blue-300 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={privacyAgreed}
+                    onChange={(e) => setPrivacyAgreed(e.target.checked)}
+                    className="mt-0.5 h-5 w-5 accent-blue-600"
+                    aria-required="true"
+                    aria-invalid={!!errors.privacyAgreed}
+                  />
+                  <span className="text-sm text-slate-800 leading-relaxed">
+                    <span className="font-semibold">個人情報の取り扱いに同意します</span>
+                    <span className="block text-xs text-slate-500 mt-1">
+                      ご入力いただいた個人情報は、本依頼の遂行および関連連絡のためにのみ使用いたします。詳細は{' '}
+                      <a href="https://spot-s.or.jp/privacy/" target="_blank" rel="noopener noreferrer" className="text-blue-700 underline underline-offset-2 hover:text-blue-900">
+                        プライバシーポリシー
+                      </a>{' '}
+                      をご確認ください。
+                    </span>
+                  </span>
+                </label>
+                {errors.privacyAgreed && <p className="text-sm text-red-600 mt-2">⚠ {errors.privacyAgreed}</p>}
+              </div>
             </section>
 
             {globalError && (
-              <div className="my-4 rounded-md bg-red-50 border border-red-200 p-4 text-sm text-red-800" role="alert">
-                {globalError}
+              <div className="rounded-lg bg-red-50 border-2 border-red-300 p-4 text-sm text-red-800 flex items-start gap-2" role="alert">
+                <span className="text-lg">⚠</span>
+                <span>{globalError}</span>
               </div>
             )}
 
-            <div className="mt-8">
+            <div className="pt-2">
+              <p className="text-center text-sm text-slate-600 mb-3">
+                ご入力内容にお間違いがないかご確認のうえ、下のボタンから送信してください
+              </p>
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full h-12 sm:h-14 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-base font-medium tracking-wide transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                className="w-full h-14 sm:h-16 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-bold tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
               >
-                {submitting ? '送信中…' : 'この内容で送信する'}
+                {submitting ? '送信中…' : '上記の内容で送信する'}
               </button>
               <p className="mt-3 text-xs text-center text-slate-500">
-                送信後、お申込み内容を {applicantEmail || 'ご登録メール'} 宛にお送りします
+                送信後、お申込み内容を <span className="font-medium text-slate-700">{applicantEmail || 'ご登録メール'}</span> 宛にお送りします
               </p>
             </div>
           </form>
-        )}
-
-        {!submissionMethod && (
-          <p className="mt-6 text-center text-sm text-slate-500">
-            上の3択から、ご希望の提出方法をお選びください。
-          </p>
         )}
       </main>
       <Footer />
