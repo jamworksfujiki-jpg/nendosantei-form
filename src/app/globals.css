@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #111827;
+  --color-primary: #298ef2;
+  --color-primary-dark: #1d6fc4;
+  --color-primary-light: #e7f1fb;
+  --color-accent: #dc2626;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fef3c7;
+  --color-success: #059669;
+  --color-muted: #6b7280;
+  --color-surface: #f9fafb;
+  --color-border: #e5e7eb;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+  font-feature-settings: "palt";
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* タップ領域 44px の保証（Apple HIG） */
+button, [role="button"], input[type="checkbox"], input[type="radio"] {
+  min-height: 44px;
+}
+
+input[type="checkbox"], input[type="radio"] {
+  min-width: 20px;
+  min-height: 20px;
+}
+
+/* 入力フィールド共通 */
+.input-base {
+  @apply w-full h-11 px-3 rounded-lg border border-gray-300 bg-white;
+  @apply focus:outline-none focus:ring-2 focus:ring-[#298ef2] focus:border-transparent;
+  @apply text-base text-gray-900 placeholder-gray-400;
+  @apply transition-shadow duration-150;
+}
+
+.input-base[aria-invalid="true"] {
+  @apply border-red-500 focus:ring-red-500;
+}
+
+.btn-primary {
+  @apply h-12 px-6 rounded-xl font-semibold text-white bg-[#298ef2] hover:bg-[#1d6fc4];
+  @apply transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1d6fc4] focus-visible:ring-offset-2;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply h-11 px-5 rounded-lg font-medium text-[#298ef2] bg-white border border-[#298ef2] hover:bg-[#e7f1fb];
+  @apply transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#298ef2] focus-visible:ring-offset-2;
+}
+
+.btn-ghost {
+  @apply h-11 px-4 rounded-lg font-medium text-gray-700 hover:bg-gray-100;
+  @apply transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
