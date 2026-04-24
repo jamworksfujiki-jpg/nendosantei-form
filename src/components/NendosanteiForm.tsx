@@ -163,21 +163,36 @@ export default function NendosanteiForm() {
     <div className="min-h-screen bg-[#fafafa]">
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* ヘッダ */}
-        <header className="mb-8 sm:mb-10">
-          <Image
-            src="/spot-logo.png"
-            alt="スポット社労士くん"
-            width={200}
-            height={47}
-            priority
-            className="mb-6"
-          />
-          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 leading-snug tracking-tight">
-            会計事務所様へのご依頼
-          </h1>
-          <p className="text-sm sm:text-base text-slate-600 mt-2">
-            年度更新・算定基礎届　代行受付フォーム
-          </p>
+        <header className="mb-10">
+          <div className="flex items-center justify-between mb-8 gap-4">
+            <Image
+              src="/spot-logo.png"
+              alt="スポット社労士くん"
+              width={200}
+              height={47}
+              priority
+            />
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-600 px-2.5 py-1 rounded-full border border-slate-300 bg-white tabular-nums">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden></span>
+              受付中
+            </span>
+          </div>
+          <div className="flex">
+            <div className="w-[3px] bg-slate-900 mr-4 sm:mr-5 rounded-full" aria-hidden />
+            <div className="py-1.5 flex-1 min-w-0">
+              <div className="text-[11px] font-medium text-slate-500 uppercase tracking-[0.2em] mb-2.5">
+                ご依頼フォーム　／　2026年度
+              </div>
+              <h1 className="text-2xl sm:text-[28px] font-semibold text-slate-900 leading-tight tracking-tight">
+                会計事務所様へのご依頼
+              </h1>
+              <p className="text-sm sm:text-base text-slate-600 mt-2.5 leading-relaxed">
+                <span className="text-slate-900 font-medium">年度更新・算定基礎届</span>
+                <span className="text-slate-400 mx-2">／</span>
+                代行受付フォーム
+              </p>
+            </div>
+          </div>
         </header>
 
         {/* 紹介条件 */}
