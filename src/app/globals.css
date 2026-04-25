@@ -105,8 +105,8 @@ input[type="checkbox"], input[type="radio"] {
 }
 
 .btn-primary {
-  @apply h-11 px-5 rounded-md font-medium text-white bg-blue-600 hover:bg-blue-700;
-  @apply transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2;
+  @apply h-11 px-5 rounded-md font-medium text-white bg-blue-800 hover:bg-blue-900;
+  @apply transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-800 focus-visible:ring-offset-2;
   @apply disabled:opacity-40 disabled:cursor-not-allowed;
 }
 

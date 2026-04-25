@@ -183,7 +183,7 @@ export default function NendosanteiForm() {
       </div>
 
       {/* タイトルバナー */}
-      <div className="bg-gradient-to-br from-blue-700 to-blue-600 text-white">
+      <div className="bg-gradient-to-br from-blue-900 to-blue-800 text-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
           <p className="text-xs sm:text-sm font-semibold tracking-[0.2em] text-blue-100 mb-2">
             2026年度　会計事務所様向け
@@ -203,7 +203,7 @@ export default function NendosanteiForm() {
         {/* 紹介条件 */}
         <section className="section-card">
           <div className="section-header">
-            <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border-2 border-blue-600 text-blue-600 text-[10px] font-bold">
+            <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border-2 border-blue-800 text-blue-800 text-[10px] font-bold">
               条件
             </span>
             <div>
@@ -216,11 +216,11 @@ export default function NendosanteiForm() {
           <div className="section-body">
             <ul className="space-y-3 text-sm text-slate-700 leading-relaxed">
               <li className="flex gap-3">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">1</span>
+                <span className="shrink-0 w-6 h-6 rounded-full bg-blue-800 text-white text-xs font-bold flex items-center justify-center">1</span>
                 <span>2025/4/1〜2026/3/31 まで <span className="font-semibold text-slate-900">freee人事労務</span> で給与計算を確定し利用している会計事務所の顧問先</span>
               </li>
               <li className="flex gap-3">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">2</span>
+                <span className="shrink-0 w-6 h-6 rounded-full bg-blue-800 text-white text-xs font-bold flex items-center justify-center">2</span>
                 <span>役員、パート・アルバイトを含み <span className="font-semibold text-slate-900">30名以下</span> の顧問先（年度内で30名を超えたタイミングがあるケースは対象外）</span>
               </li>
             </ul>
@@ -269,7 +269,7 @@ export default function NendosanteiForm() {
                     className={
                       'h-auto min-h-[72px] px-4 py-3 rounded-lg border-2 transition-all text-center ' +
                       (selected
-                        ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-sm'
+                        ? 'border-blue-800 bg-blue-50 text-blue-900 shadow-sm'
                         : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/30')
                     }
                   >
@@ -300,7 +300,7 @@ export default function NendosanteiForm() {
               <div className="rounded-lg bg-slate-50 border border-slate-200 p-4 text-sm text-slate-800 leading-relaxed space-y-1.5">
                 <p className="font-semibold text-slate-900">スポット社労士くん社会保険労務士法人　油井 宛</p>
                 <p>〒102-0075 東京都千代田区三番町3-8 泉館三番町6F</p>
-                <p>TEL: <a href="tel:0362726183" className="text-blue-700 underline underline-offset-4 decoration-blue-300 hover:decoration-blue-700 font-medium">03-6272-6183</a></p>
+                <p>TEL: <a href="tel:0362726183" className="text-blue-700 underline underline-offset-4 decoration-blue-300 hover:decoration-blue-900 font-medium">03-6272-6183</a></p>
               </div>
               <p className="mt-4 text-sm text-slate-600">
                 算定基礎届・労働保険料申告書を上記住所までお送りください。
@@ -321,7 +321,7 @@ export default function NendosanteiForm() {
             <div className="section-body">
               <div className="rounded-lg bg-slate-50 border border-slate-200 p-4">
                 <p className="text-lg sm:text-xl text-slate-900 font-semibold">
-                  <a href="mailto:yui@spot-s.or.jp" className="text-blue-700 underline underline-offset-4 decoration-blue-300 hover:decoration-blue-700">yui@spot-s.or.jp</a>
+                  <a href="mailto:yui@spot-s.or.jp" className="text-blue-700 underline underline-offset-4 decoration-blue-300 hover:decoration-blue-900">yui@spot-s.or.jp</a>
                 </p>
               </div>
               <p className="mt-4 text-sm text-slate-600 leading-relaxed">
@@ -468,7 +468,7 @@ export default function NendosanteiForm() {
                     type="checkbox"
                     checked={privacyAgreed}
                     onChange={(e) => setPrivacyAgreed(e.target.checked)}
-                    className="mt-0.5 h-5 w-5 accent-blue-600"
+                    className="mt-0.5 h-5 w-5 accent-blue-800"
                     aria-required="true"
                     aria-invalid={!!errors.privacyAgreed}
                   />
@@ -501,7 +501,7 @@ export default function NendosanteiForm() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full h-14 sm:h-16 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-bold tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                className="w-full h-14 sm:h-16 rounded-lg bg-blue-800 hover:bg-blue-900 text-white text-base sm:text-lg font-bold tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-800 focus-visible:ring-offset-2"
               >
                 {submitting ? '送信中…' : '上記の内容で送信する'}
               </button>

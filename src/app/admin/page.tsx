@@ -212,7 +212,7 @@ export default function AdminPage() {
                           </li>
                         ))}
                         <li>
-                          <button onClick={() => toggleExpand(r.id)} className="text-blue-600 hover:underline text-xs mt-1">
+                          <button onClick={() => toggleExpand(r.id)} className="text-blue-800 hover:underline text-xs mt-1">
                             閉じる
                           </button>
                         </li>
@@ -224,7 +224,7 @@ export default function AdminPage() {
                           {contacts.length > 2 && ` 他${contacts.length - 2}社`}
                         </span>
                         {contacts.length > 1 && (
-                          <button onClick={() => toggleExpand(r.id)} className="text-blue-600 hover:underline mt-0.5">
+                          <button onClick={() => toggleExpand(r.id)} className="text-blue-800 hover:underline mt-0.5">
                             すべて表示
                           </button>
                         )}

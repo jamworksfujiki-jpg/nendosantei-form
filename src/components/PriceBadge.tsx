@@ -3,10 +3,10 @@ import Image from 'next/image';
 export default function PriceBadge() {
   return (
     <div className="my-8">
-      <div className="relative rounded-xl border-2 border-blue-600 bg-gradient-to-br from-blue-50 via-white to-white px-6 py-9 sm:py-11 text-center shadow-sm">
+      <div className="relative rounded-xl border-2 border-blue-800 bg-gradient-to-br from-blue-50 via-white to-white px-6 py-9 sm:py-11 text-center shadow-sm">
         {/* リボンバッジ */}
         <div className="absolute -top-5 left-1/2 -translate-x-1/2">
-          <div className="bg-blue-600 text-white text-sm sm:text-base font-bold tracking-[0.15em] px-6 sm:px-8 py-2.5 rounded-full shadow-md whitespace-nowrap">
+          <div className="bg-blue-800 text-white text-sm sm:text-base font-bold tracking-[0.15em] px-6 sm:px-8 py-2.5 rounded-full shadow-md whitespace-nowrap">
             会計事務所様向け 特別価格
           </div>
         </div>

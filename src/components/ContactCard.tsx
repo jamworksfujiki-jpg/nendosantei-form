@@ -102,7 +102,7 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
     <div className="rounded-lg border-2 border-slate-200 bg-white overflow-hidden">
       <div className="flex items-center justify-between px-4 sm:px-5 py-3 bg-blue-50 border-b border-blue-100">
         <div className="flex items-center gap-2.5">
-          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold">
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-800 text-white text-xs font-bold">
             {index + 1}
           </span>
           <h4 className="text-sm font-bold text-slate-900">
@@ -198,14 +198,14 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
           <label className={
             'flex items-center gap-3 px-4 h-14 rounded-md border-2 cursor-pointer transition-colors ' +
             (contact.needsNendoKoshin
-              ? 'border-blue-600 bg-blue-50 text-blue-900'
+              ? 'border-blue-800 bg-blue-50 text-blue-900'
               : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/30')
           }>
             <input
               type="checkbox"
               checked={contact.needsNendoKoshin}
               onChange={(e) => onUpdate(contact.rowIndex, { needsNendoKoshin: e.target.checked })}
-              className="h-5 w-5 accent-blue-600"
+              className="h-5 w-5 accent-blue-800"
               aria-invalid={!!errors?.needsNendoKoshin}
             />
             <span className="text-sm font-semibold">年度更新</span>
@@ -214,14 +214,14 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
           <label className={
             'flex items-center gap-3 px-4 h-14 rounded-md border-2 cursor-pointer transition-colors ' +
             (contact.needsSantei
-              ? 'border-blue-600 bg-blue-50 text-blue-900'
+              ? 'border-blue-800 bg-blue-50 text-blue-900'
               : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/30')
           }>
             <input
               type="checkbox"
               checked={contact.needsSantei}
               onChange={(e) => onUpdate(contact.rowIndex, { needsSantei: e.target.checked })}
-              className="h-5 w-5 accent-blue-600"
+              className="h-5 w-5 accent-blue-800"
             />
             <span className="text-sm font-semibold">算定基礎届</span>
             <span className="ml-auto text-sm font-bold tabular-nums">¥9,900</span>
