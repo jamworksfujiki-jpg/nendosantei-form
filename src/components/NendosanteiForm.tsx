@@ -170,18 +170,15 @@ export default function NendosanteiForm() {
     <div className="min-h-screen">
       {/* 上部ロゴバー */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-center">
           <Image
             src="/spot-logo.png"
             alt="スポット社労士くん"
-            width={180}
-            height={42}
+            width={260}
+            height={61}
             priority
+            className="h-auto"
           />
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden></span>
-            ただいま受付中
-          </span>
         </div>
       </div>
 
@@ -210,10 +207,10 @@ export default function NendosanteiForm() {
               条件
             </span>
             <div>
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                 ご紹介いただける顧問先の条件
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">以下すべてを満たす顧問先様が対象です</p>
+              <p className="text-sm text-slate-600 mt-1">以下すべてを満たす顧問先様が対象です</p>
             </div>
           </div>
           <div className="section-body">

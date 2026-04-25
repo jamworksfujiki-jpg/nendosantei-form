@@ -68,7 +68,7 @@ input[type="checkbox"], input[type="radio"] {
   @apply inline-block px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider text-slate-500 bg-slate-100 border border-slate-300 align-middle ml-1.5;
 }
 
-/* セクションカード（保険フォーム風） */
+/* セクションカード（既存：情報パート用に保持） */
 .section-card {
   @apply rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm;
 }
@@ -81,15 +81,27 @@ input[type="checkbox"], input[type="radio"] {
   @apply px-5 sm:px-6 py-5 sm:py-6;
 }
 
-/* STEP バッジ */
-.step-badge {
-  @apply inline-flex flex-col items-center justify-center w-11 h-11 rounded-full bg-blue-600 text-white shrink-0 leading-none;
+/* フラット入力セクション（参照画像準拠） */
+.flat-section {
+  @apply bg-white;
 }
-.step-badge-label {
-  @apply text-[9px] font-semibold tracking-wider uppercase opacity-80;
+.flat-section-title {
+  @apply text-[15px] sm:text-base font-bold text-slate-900 px-5 sm:px-6 pt-5 pb-3;
 }
-.step-badge-number {
-  @apply text-base font-bold;
+.field-row {
+  @apply px-5 sm:px-6 py-5 border-t border-slate-200;
+}
+.field-row:last-child {
+  @apply border-b;
+}
+.field-label {
+  @apply block text-sm font-bold text-slate-900 mb-2;
+}
+.field-help {
+  @apply text-xs text-slate-500 mt-1.5;
+}
+.field-help-warn {
+  @apply text-xs text-red-600 mt-1.5;
 }
 
 .btn-primary {

@@ -21,11 +21,11 @@ export default function DeadlineNotice({ isAfterDeadline, acknowledged, onAcknow
         </div>
       </div>
       <div className="section-body">
-        <div className="rounded-lg bg-amber-50 border border-amber-200 p-4">
-          <p className="text-xs uppercase tracking-wider text-amber-700 font-bold mb-2">
+        <div className="rounded-lg bg-white border-2 border-blue-600 p-4">
+          <p className="text-xs uppercase tracking-wider text-blue-700 font-bold mb-2">
             6月15日を過ぎた場合
           </p>
-          <ul className="space-y-1.5 pl-4 list-disc marker:text-amber-400 text-sm text-slate-700 leading-relaxed">
+          <ul className="space-y-1.5 pl-4 list-disc marker:text-blue-400 text-sm text-slate-700 leading-relaxed">
             <li>
               6/15以降も受付は可能ですが、<span className="text-slate-900 font-semibold">7/10までの申請に間に合わない可能性</span>があります。
             </li>
@@ -38,15 +38,15 @@ export default function DeadlineNotice({ isAfterDeadline, acknowledged, onAcknow
           </ul>
         </div>
         {isAfterDeadline && (
-          <label className="mt-5 flex items-start gap-3 p-4 rounded-lg bg-amber-50 border-2 border-amber-300 cursor-pointer">
+          <label className="mt-5 flex items-start gap-3 p-4 rounded-lg bg-white border-2 border-blue-600 cursor-pointer">
             <input
               type="checkbox"
               checked={acknowledged}
               onChange={(e) => onAcknowledge(e.target.checked)}
-              className="mt-0.5 h-5 w-5 accent-amber-600"
+              className="mt-0.5 h-5 w-5 accent-blue-600"
               aria-required="true"
             />
-            <span className="text-sm text-amber-900 font-medium">
+            <span className="text-sm text-slate-900 font-medium">
               注文期限（6/15）を過ぎていることを理解し、上記3点に同意します
             </span>
           </label>

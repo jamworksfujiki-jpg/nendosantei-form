@@ -13,9 +13,9 @@ export default function PriceBadge() {
           1項目あたり
         </p>
 
-        <div className="flex items-baseline justify-center gap-1 text-blue-700">
-          <span className="text-6xl sm:text-[88px] font-semibold tracking-tight tabular-nums leading-none">9,900</span>
-          <span className="text-2xl sm:text-3xl font-semibold ml-1">円</span>
+        <div className="flex items-baseline justify-center gap-1 text-red-600">
+          <span className="text-6xl sm:text-[88px] font-bold tracking-tight tabular-nums leading-none">9,900</span>
+          <span className="text-2xl sm:text-3xl font-bold ml-1">円</span>
         </div>
         <p className="mt-2 text-sm text-slate-600">税込</p>
 
@@ -24,14 +24,14 @@ export default function PriceBadge() {
             <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">✓</span>
             <div>
               <span className="block font-medium text-slate-900">年度更新</span>
-              <span className="text-xs text-slate-500">労働保険料申告書／1顧問先 <span className="font-semibold text-blue-700">9,900円</span></span>
+              <span className="text-xs text-slate-500">労働保険料申告書／1顧問先 <span className="font-bold text-red-600">9,900円</span></span>
             </div>
           </div>
           <div className="flex items-start gap-2.5 text-sm text-slate-700">
             <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">✓</span>
             <div>
               <span className="block font-medium text-slate-900">算定基礎届</span>
-              <span className="text-xs text-slate-500">1顧問先 <span className="font-semibold text-blue-700">9,900円</span></span>
+              <span className="text-xs text-slate-500">1顧問先 <span className="font-bold text-red-600">9,900円</span></span>
             </div>
           </div>
         </div>
