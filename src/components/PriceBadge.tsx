@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function PriceBadge() {
   return (
     <div className="my-8">
@@ -20,34 +22,33 @@ export default function PriceBadge() {
         <p className="mt-2 text-sm text-slate-600">税込</p>
 
         <div className="mt-6 pt-5 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-md mx-auto">
-          <div className="flex items-start gap-3 text-sm text-slate-700">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 18"
-              className="shrink-0 mt-0.5 w-9 h-7"
-              aria-hidden="true"
-            >
-              <rect x="0.5" y="0.5" width="23" height="17" rx="1" fill="#a3e635" stroke="#65a30d" strokeWidth="0.8" />
-              <path d="M0.5 0.5 L12 9.5 L23.5 0.5" fill="none" stroke="#65a30d" strokeWidth="0.8" />
-            </svg>
+          <div className="flex items-center gap-3 text-sm text-slate-700">
+            <Image
+              src="/envelopes/green-envelope.avif"
+              alt="緑の封筒（年度更新）"
+              width={302}
+              height={400}
+              className="shrink-0 w-14 sm:w-16 h-auto rounded-sm"
+              unoptimized
+            />
             <div>
               <span className="block font-bold text-slate-900">年度更新</span>
-              <span className="text-xs text-slate-500">労働保険料申告書／1顧問先 <span className="font-bold text-red-600">9,900円</span></span>
+              <span className="text-xs text-slate-500 block">労働保険料申告書／1顧問先</span>
+              <span className="text-base font-bold text-red-600 tabular-nums">9,900円</span>
             </div>
           </div>
-          <div className="flex items-start gap-3 text-sm text-slate-700">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 18"
-              className="shrink-0 mt-0.5 w-9 h-7"
-              aria-hidden="true"
-            >
-              <rect x="0.5" y="0.5" width="23" height="17" rx="1" fill="#d4a574" stroke="#8b5a2b" strokeWidth="0.8" />
-              <path d="M0.5 0.5 L12 9.5 L23.5 0.5" fill="none" stroke="#8b5a2b" strokeWidth="0.8" />
-            </svg>
+          <div className="flex items-center gap-3 text-sm text-slate-700">
+            <Image
+              src="/envelopes/brown-envelope.png"
+              alt="茶色の封筒（算定基礎届）"
+              width={1417}
+              height={2111}
+              className="shrink-0 w-14 sm:w-16 h-auto rounded-sm"
+            />
             <div>
               <span className="block font-bold text-slate-900">算定基礎届</span>
-              <span className="text-xs text-slate-500">1顧問先 <span className="font-bold text-red-600">9,900円</span></span>
+              <span className="text-xs text-slate-500 block">1顧問先</span>
+              <span className="text-base font-bold text-red-600 tabular-nums">9,900円</span>
             </div>
           </div>
         </div>
