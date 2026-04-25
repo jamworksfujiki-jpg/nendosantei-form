@@ -5,17 +5,14 @@ export default function PriceBadge() {
     <div className="my-8">
       <div className="relative rounded-xl border-2 border-blue-600 bg-gradient-to-br from-blue-50 via-white to-white px-6 py-9 sm:py-11 text-center shadow-sm">
         {/* リボンバッジ */}
-        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-          <div className="bg-blue-600 text-white text-[11px] font-semibold tracking-[0.22em] uppercase px-4 py-1.5 rounded-full shadow-sm whitespace-nowrap">
-            会計事務所様 特別価格
+        <div className="absolute -top-5 left-1/2 -translate-x-1/2">
+          <div className="bg-blue-600 text-white text-sm sm:text-base font-bold tracking-[0.15em] px-6 sm:px-8 py-2.5 rounded-full shadow-md whitespace-nowrap">
+            会計事務所様向け 特別価格
           </div>
         </div>
 
-        <p className="text-[11px] sm:text-xs text-slate-500 tracking-[0.2em] uppercase mb-2">
-          1項目あたり
-        </p>
-
-        <div className="flex items-baseline justify-center gap-1 text-red-600">
+        <div className="flex items-baseline justify-center gap-2 text-red-600 mt-2">
+          <span className="text-3xl sm:text-4xl font-bold leading-none">各</span>
           <span className="text-6xl sm:text-[88px] font-bold tracking-tight tabular-nums leading-none">9,900</span>
           <span className="text-2xl sm:text-3xl font-bold ml-1">円</span>
         </div>
