@@ -19,18 +19,34 @@ export default function PriceBadge() {
         </div>
         <p className="mt-2 text-sm text-slate-600">税込</p>
 
-        <div className="mt-6 pt-5 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-left max-w-md mx-auto">
-          <div className="flex items-start gap-2.5 text-sm text-slate-700">
-            <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">✓</span>
+        <div className="mt-6 pt-5 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-md mx-auto">
+          <div className="flex items-start gap-3 text-sm text-slate-700">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 18"
+              className="shrink-0 mt-0.5 w-9 h-7"
+              aria-hidden="true"
+            >
+              <rect x="0.5" y="0.5" width="23" height="17" rx="1" fill="#a3e635" stroke="#65a30d" strokeWidth="0.8" />
+              <path d="M0.5 0.5 L12 9.5 L23.5 0.5" fill="none" stroke="#65a30d" strokeWidth="0.8" />
+            </svg>
             <div>
-              <span className="block font-medium text-slate-900">年度更新</span>
+              <span className="block font-bold text-slate-900">年度更新</span>
               <span className="text-xs text-slate-500">労働保険料申告書／1顧問先 <span className="font-bold text-red-600">9,900円</span></span>
             </div>
           </div>
-          <div className="flex items-start gap-2.5 text-sm text-slate-700">
-            <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">✓</span>
+          <div className="flex items-start gap-3 text-sm text-slate-700">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 18"
+              className="shrink-0 mt-0.5 w-9 h-7"
+              aria-hidden="true"
+            >
+              <rect x="0.5" y="0.5" width="23" height="17" rx="1" fill="#d4a574" stroke="#8b5a2b" strokeWidth="0.8" />
+              <path d="M0.5 0.5 L12 9.5 L23.5 0.5" fill="none" stroke="#8b5a2b" strokeWidth="0.8" />
+            </svg>
             <div>
-              <span className="block font-medium text-slate-900">算定基礎届</span>
+              <span className="block font-bold text-slate-900">算定基礎届</span>
               <span className="text-xs text-slate-500">1顧問先 <span className="font-bold text-red-600">9,900円</span></span>
             </div>
           </div>
