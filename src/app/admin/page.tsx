@@ -2,11 +2,23 @@
 
 import { useEffect, useState } from 'react';
 
+interface FileRow {
+  id: string;
+  file_kind: 'santei' | 'roho' | 'other';
+  original_filename: string;
+  size_bytes: number;
+}
+
 interface ContactRow {
+  id: string;
   row_index: number;
   company_name: string;
+  contact_name?: string;
+  phone?: string;
+  email?: string;
   needs_nendo_koshin?: boolean;
   needs_santei?: boolean;
+  application_files?: FileRow[];
 }
 
 interface ApplicationRow {
@@ -90,6 +102,19 @@ export default function AdminPage() {
       else next.add(id);
       return next;
     });
+  }
+
+  async function downloadFile(fileId: string) {
+    try {
+      const res = await fetch(`/api/admin/file?fileId=${encodeURIComponent(fileId)}`, {
+        headers: { 'x-admin-password': password },
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'DL失敗');
+      window.open(json.url, '_blank', 'noopener');
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'ダウンロードに失敗しました');
+    }
   }
 
   if (!authed) {
@@ -200,17 +225,45 @@ export default function AdminPage() {
                     {contacts.length === 0 ? (
                       <span className="text-slate-400 text-xs">（紙・メール受付）</span>
                     ) : isExpanded ? (
-                      <ul className="space-y-0.5 text-xs">
-                        {contacts.map((c, i) => (
-                          <li key={i}>
-                            #{i + 1} {c.company_name}
-                            <span className="ml-2 text-slate-400">
-                              {c.needs_nendo_koshin && '年度更新'}
-                              {c.needs_nendo_koshin && c.needs_santei && '＋'}
-                              {c.needs_santei && '算定'}
-                            </span>
-                          </li>
-                        ))}
+                      <ul className="space-y-2 text-xs">
+                        {contacts.map((c, i) => {
+                          const rohoFile = c.application_files?.find((f) => f.file_kind === 'roho');
+                          const santeiFile = c.application_files?.find((f) => f.file_kind === 'santei');
+                          return (
+                            <li key={i} className="border-l-2 border-slate-200 pl-2">
+                              <div>
+                                <span className="font-semibold">#{i + 1} {c.company_name}</span>
+                                <span className="ml-2 text-slate-400">
+                                  {c.needs_nendo_koshin && '年度更新'}
+                                  {c.needs_nendo_koshin && c.needs_santei && '＋'}
+                                  {c.needs_santei && '算定'}
+                                </span>
+                              </div>
+                              {(rohoFile || santeiFile) && (
+                                <div className="mt-1 flex flex-wrap gap-1.5">
+                                  {rohoFile && (
+                                    <button
+                                      type="button"
+                                      onClick={() => downloadFile(rohoFile.id)}
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100"
+                                    >
+                                      📎 年度更新DL
+                                    </button>
+                                  )}
+                                  {santeiFile && (
+                                    <button
+                                      type="button"
+                                      onClick={() => downloadFile(santeiFile.id)}
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100"
+                                    >
+                                      📎 算定基礎DL
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </li>
+                          );
+                        })}
                         <li>
                           <button onClick={() => toggleExpand(r.id)} className="text-blue-800 hover:underline text-xs mt-1">
                             閉じる

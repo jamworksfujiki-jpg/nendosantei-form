@@ -3,13 +3,15 @@ import { Resend } from 'resend';
 import { getServiceClient, STORAGE_BUCKET } from '@/lib/supabase';
 import { applicationSchema } from '@/lib/validation';
 import { buildThanksEmail, buildAdminNotifyEmail, FROM_ADDRESS, REPLY_TO } from '@/lib/email-templates';
+import { getEnv } from '@/lib/env';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
+const SIGNED_URL_EXPIRES_SEC = 60 * 60 * 24 * 30;
+
 function getResend() {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) throw new Error('RESEND_API_KEY is not configured');
+  const key = getEnv('RESEND_API_KEY', { required: true });
   return new Resend(key);
 }
 
@@ -154,7 +156,7 @@ export async function POST(req: NextRequest) {
       });
       const { data: signed } = await supabase.storage
         .from(STORAGE_BUCKET)
-        .createSignedUrl(storagePath, 60 * 60 * 24 * 7);
+        .createSignedUrl(storagePath, SIGNED_URL_EXPIRES_SEC);
       if (signed?.signedUrl) {
         const kindLabel = f.kind === 'santei' ? '算定基礎届' : '労働保険料申告書';
         fileLinks.push(`#${f.rowIndex} ${kindLabel}: ${signed.signedUrl}`);
@@ -167,8 +169,9 @@ export async function POST(req: NextRequest) {
     }
 
     // メール送信
-    const adminTo = process.env.ADMIN_NOTIFY_EMAIL || 'info@spot-s.jp';
-    const adminCc = process.env.ADMIN_NOTIFY_CC ? [process.env.ADMIN_NOTIFY_CC] : undefined;
+    const adminTo = getEnv('ADMIN_NOTIFY_EMAIL') || 'info@spot-s.jp';
+    const adminCcRaw = getEnv('ADMIN_NOTIFY_CC');
+    const adminCc = adminCcRaw ? [adminCcRaw] : undefined;
 
     const resend = getResend();
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase';
+import { getEnv } from '@/lib/env';
 
 export const runtime = 'nodejs';
 
@@ -14,7 +15,7 @@ function safeEqual(a: string, b: string) {
 
 export async function GET(req: NextRequest) {
   const pw = req.headers.get('x-admin-password') ?? '';
-  const expected = process.env.ADMIN_PASSWORD ?? '';
+  const expected = getEnv('ADMIN_PASSWORD') ?? '';
   if (!expected || !safeEqual(pw, expected)) {
     return NextResponse.json({ error: '認証に失敗しました' }, { status: 401 });
   }
@@ -24,13 +25,28 @@ export async function GET(req: NextRequest) {
     .select(`
       id, submission_method, applicant_office_name, applicant_name,
       applicant_email, applicant_phone, total_contacts, status, created_at,
-      application_contacts ( row_index, company_name, needs_nendo_koshin, needs_santei )
+      application_contacts (
+        id, row_index, company_name, contact_name, phone, email,
+        needs_nendo_koshin, needs_santei,
+        application_files ( id, file_kind, original_filename, size_bytes )
+      )
     `)
     .order('created_at', { ascending: false })
     .limit(500);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  type RawContact = { row_index: number; company_name: string; needs_nendo_koshin?: boolean; needs_santei?: boolean };
+  type RawFile = { id: string; file_kind: 'santei' | 'roho' | 'other'; original_filename: string; size_bytes: number };
+  type RawContact = {
+    id: string;
+    row_index: number;
+    company_name: string;
+    contact_name?: string;
+    phone?: string;
+    email?: string;
+    needs_nendo_koshin?: boolean;
+    needs_santei?: boolean;
+    application_files?: RawFile[];
+  };
 
   const applications = (data ?? []).map((a) => {
     const contacts = (a.application_contacts ?? []).slice().sort(
