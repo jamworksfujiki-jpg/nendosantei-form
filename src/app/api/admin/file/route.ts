@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceClient, STORAGE_BUCKET } from '@/lib/supabase';
 import { getEnv } from '@/lib/env';
+import { checkRateLimit, clientKey } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -14,6 +15,10 @@ function safeEqual(a: string, b: string) {
 }
 
 export async function GET(req: NextRequest) {
+  const limit = checkRateLimit(clientKey(req, 'admin-file'), { windowMs: 60_000, max: 30 });
+  if (!limit.ok) {
+    return NextResponse.json({ error: 'リクエストが多すぎます。しばらくしてからお試しください' }, { status: 429 });
+  }
   const pw = req.headers.get('x-admin-password') ?? '';
   const expected = getEnv('ADMIN_PASSWORD') ?? '';
   if (!expected || !safeEqual(pw, expected)) {

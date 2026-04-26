@@ -13,6 +13,7 @@ import FreeeInviteGuide from './FreeeInviteGuide';
 import Footer from './Footer';
 
 const MAX_CONTACTS = 50;
+const MAX_TOTAL_BYTES = 100 * 1024 * 1024;
 
 function emptyContact(rowIndex: number): ContactRow {
   return {
@@ -133,6 +134,15 @@ export default function NendosanteiForm() {
     if (submissionMethod !== 'form') return;
     if (!validate()) {
       setGlobalError('入力内容にエラーがあります。赤字の項目をご確認ください。');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    const totalBytes = contacts.reduce(
+      (sum, c) => sum + (c.santeiFile?.size ?? 0) + (c.rohoFile?.size ?? 0),
+      0,
+    );
+    if (totalBytes > MAX_TOTAL_BYTES) {
+      setGlobalError(`添付ファイルの合計サイズが上限（100MB）を超えています：${(totalBytes / (1024 * 1024)).toFixed(1)}MB。件数を分けて送信してください。`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -486,7 +496,8 @@ export default function NendosanteiForm() {
                   </label>
                 </div>
                 <p className="mt-2.5 text-xs text-slate-500 leading-relaxed">
-                  ※ CSVテンプレートをダウンロードして編集 → 一括入力で最大50件まで読み込めます（ファイルは別途各カードに添付してください）
+                  ※ CSVテンプレートをダウンロードして編集 → 一括入力で最大50件まで読み込めます（ファイルは別途各カードに添付してください）<br />
+                  ※ Excelで保存する際は「<span className="font-semibold text-slate-700">CSV UTF-8（コンマ区切り）</span>」を選択してください（通常のCSVだと文字化けします）
                 </p>
               </div>
             </section>

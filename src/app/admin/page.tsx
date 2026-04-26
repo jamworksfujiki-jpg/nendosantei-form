@@ -58,6 +58,15 @@ function formatJpy(n: number) {
   return n.toLocaleString('ja-JP');
 }
 
+interface EmailLogRow {
+  id: string;
+  application_id: string | null;
+  type: string;
+  status: string;
+  error: string | null;
+  sent_at: string;
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
@@ -66,6 +75,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [tab, setTab] = useState<'orders' | 'failed'>('orders');
+  const [failedLogs, setFailedLogs] = useState<EmailLogRow[]>([]);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('nendosantei_admin_pw');
@@ -102,6 +113,19 @@ export default function AdminPage() {
       else next.add(id);
       return next;
     });
+  }
+
+  async function loadFailedLogs() {
+    try {
+      const res = await fetch('/api/admin/email-logs?status=failed', {
+        headers: { 'x-admin-password': password },
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || '取得失敗');
+      setFailedLogs(json.logs);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'エラー');
+    }
   }
 
   async function downloadFile(fileId: string) {
@@ -141,10 +165,61 @@ export default function AdminPage() {
     <main className="max-w-6xl mx-auto p-4 sm:p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-slate-900">受注管理</h1>
-        <button onClick={() => load(password)} className="btn-secondary">再読込</button>
+        <button onClick={() => { load(password); if (tab === 'failed') loadFailedLogs(); }} className="btn-secondary">再読込</button>
       </div>
 
-      {summary && (
+      <div className="mb-5 flex gap-1 border-b border-slate-200">
+        <button
+          type="button"
+          onClick={() => setTab('orders')}
+          className={'px-4 py-2 text-sm font-semibold border-b-2 transition-colors ' + (tab === 'orders' ? 'border-blue-800 text-blue-800' : 'border-transparent text-slate-500 hover:text-slate-700')}
+        >
+          受注一覧
+        </button>
+        <button
+          type="button"
+          onClick={() => { setTab('failed'); loadFailedLogs(); }}
+          className={'px-4 py-2 text-sm font-semibold border-b-2 transition-colors ' + (tab === 'failed' ? 'border-red-600 text-red-600' : 'border-transparent text-slate-500 hover:text-slate-700')}
+        >
+          メール失敗ログ
+        </button>
+      </div>
+
+      {tab === 'failed' && (
+        <div className="bg-white rounded-lg border border-slate-200 overflow-x-auto mb-6">
+          <table className="min-w-full text-sm">
+            <thead className="bg-slate-50 text-slate-700">
+              <tr>
+                <th className="text-left px-3 py-2.5 font-medium">発生日時</th>
+                <th className="text-left px-3 py-2.5 font-medium">受付ID</th>
+                <th className="text-left px-3 py-2.5 font-medium">種別</th>
+                <th className="text-left px-3 py-2.5 font-medium">エラー内容</th>
+              </tr>
+            </thead>
+            <tbody>
+              {failedLogs.map((log) => (
+                <tr key={log.id} className="border-t border-slate-100 align-top">
+                  <td className="px-3 py-2.5 whitespace-nowrap text-xs text-slate-600">
+                    {new Date(log.sent_at).toLocaleString('ja-JP')}
+                  </td>
+                  <td className="px-3 py-2.5 text-xs font-mono text-slate-500">{log.application_id?.slice(0, 8) ?? '-'}</td>
+                  <td className="px-3 py-2.5">
+                    <span className="inline-block px-2 py-0.5 rounded text-xs bg-red-50 text-red-700 border border-red-200">
+                      {log.type === 'thanks' ? 'サンクスメール' : log.type === 'admin_notify' ? '管理通知' : log.type}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2.5 text-xs text-slate-700 break-all">{log.error ?? '-'}</td>
+                </tr>
+              ))}
+              {failedLogs.length === 0 && (
+                <tr><td colSpan={4} className="text-center py-12 text-slate-500">失敗ログはありません</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {tab === 'orders' && summary && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <div className="rounded-lg bg-white border border-slate-200 p-5">
             <p className="text-xs text-slate-500 uppercase tracking-wider mb-1.5">受注総数</p>
@@ -182,6 +257,7 @@ export default function AdminPage() {
         </div>
       )}
 
+      {tab === 'orders' && (
       <div className="overflow-x-auto bg-white rounded-lg border border-slate-200">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-50 text-slate-700">
@@ -305,6 +381,7 @@ export default function AdminPage() {
           </tbody>
         </table>
       </div>
+      )}
 
       <p className="mt-4 text-xs text-slate-400">
         単価: ¥9,900 / 項目（年度更新・算定基礎届は別計上）
