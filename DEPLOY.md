@@ -93,16 +93,24 @@ npx vercel deploy --prod --scope e-gov-spotportal
 ```
 
 ### 環境変数（本番）
-| Key | Value |
-|---|---|
-| NEXT_PUBLIC_SUPABASE_URL | https://sslrangrwlawqhnxynno.supabase.co |
-| NEXT_PUBLIC_SUPABASE_ANON_KEY | （Supabase Dashboard 参照） |
-| SUPABASE_SERVICE_ROLE_KEY | （同上） |
-| RESEND_API_KEY | re_FbmC9GPZ_5LZwbFkU7pgponSZDonMgH17 |
-| ADMIN_NOTIFY_EMAIL | info@spot-s.jp |
-| ADMIN_NOTIFY_CC | jamworksfujiki@gmail.com |
-| ADMIN_PASSWORD | spot1192 |
-| NEXT_PUBLIC_SITE_URL | https://nendosantei-form.vercel.app |
+| Key | Value | 必須 |
+|---|---|---|
+| NEXT_PUBLIC_SUPABASE_URL | https://sslrangrwlawqhnxynno.supabase.co | ✅ |
+| NEXT_PUBLIC_SUPABASE_ANON_KEY | （Supabase Dashboard 参照） | ✅ |
+| SUPABASE_SERVICE_ROLE_KEY | （同上） | ✅ |
+| RESEND_API_KEY | re_FbmC9GPZ_5LZwbFkU7pgponSZDonMgH17 | ✅ |
+| ADMIN_NOTIFY_EMAIL | info@spot-s.jp | ✅ |
+| ADMIN_NOTIFY_CC | jamworksfujiki@gmail.com | ✅ |
+| ADMIN_PASSWORD | spot1192 | ✅ |
+| NEXT_PUBLIC_SITE_URL | https://nendosantei-form.vercel.app | ✅ |
+| FORM_ENABLED | `true` (受付停止時のみ `false`) | 任意 |
+| FORM_HARD_DEADLINE | `2026-07-10T23:59:59+09:00`（既定。期限変更時に上書き） | 任意 |
+| NEXT_PUBLIC_FORM_HARD_DEADLINE | 同上（クライアント側で停止画面を表示する用） | 任意 |
+| NEXT_PUBLIC_SENTRY_DSN | Sentry プロジェクトの DSN（未設定なら Sentry 無効） | 任意 |
+| SENTRY_ORG / SENTRY_PROJECT / SENTRY_AUTH_TOKEN | Sentry source map upload 用 | 任意 |
+
+> ⚠️ Vercel CLI で env を登録する際、値の末尾に改行が混入する事故が過去あり。
+> `getEnv()` ヘルパーで自動 trim しているが、`vercel env pull` で xxd 等で末尾確認するのが望ましい。
 
 ## Supabase
 
@@ -132,3 +140,58 @@ npx vercel deploy --prod --scope e-gov-spotportal
 - ✅ **6/15以降に送信した場合のみ、期限超過の同意チェックが必須**になる
 - ✅ **ファイル（算定基礎届・労保申告書）は各顧問先につき必須**
 - ✅ **CSV一括UPで最大50件まで読み込み可能**（ファイルは別途各カードで添付）
+- ✅ **7/10以降は自動的に「受付終了」画面**に切り替わる（FORM_HARD_DEADLINE）
+- ✅ **添付ファイルの合計100MB上限**（クライアント側で事前チェック）
+- ✅ **重複送信は idempotency-key で5分以内なら自動スキップ**（DBに重複登録されない）
+- ✅ **メール送信失敗時は jamworksfujiki@gmail.com にフォールバック通知**
+
+---
+
+## 🗓 週次運用チェックリスト（毎週月曜目安）
+
+以下の4項目を週1で確認すること。所要約5分。
+
+### 1. Resend ドメイン認証（DKIM/SPF/DMARC）が緑か
+- 確認URL: https://resend.com/domains
+- `spot-s.jp` の Status が **Verified（緑）** であること
+- 赤・黄になっていたら DNS 設定変更や認証切れの可能性 → ロリポップ DNS 確認
+
+### 2. メール失敗ログ確認
+- 管理画面 → 「メール失敗ログ」タブ
+- 失敗が積み上がっていないか確認
+- 失敗があれば `error` 列を見て原因を判断（API key 失効、From 不正、迷惑メール判定 等）
+
+### 3. Supabase Storage 容量
+- 確認URL: https://supabase.com/dashboard/project/sslrangrwlawqhnxynno/storage/buckets
+- `application-files` バケットの使用量
+- 1GB（無料）/ 100GB（Pro）の上限に近づいていないか
+- 古い受注のファイルは年度末（4月）に手動でアーカイブ
+
+### 4. Sentry エラー直近1週間
+- 確認URL: Sentry ダッシュボード（NEXT_PUBLIC_SENTRY_DSN を設定後）
+- 未解決のエラーがないか
+- 同一エラーが繰り返している場合は原因調査
+
+---
+
+## 🔧 トラブルシュート
+
+### メールが届かない
+1. 管理画面の「メール失敗ログ」タブを確認
+2. Resend ダッシュボードで送信履歴確認
+3. Vercel 環境変数 `RESEND_API_KEY` が正しいか（末尾改行混入は `vercel env pull` で確認）
+
+### 受付期限を延長したい
+1. Vercel env で `FORM_HARD_DEADLINE` と `NEXT_PUBLIC_FORM_HARD_DEADLINE` を更新
+2. 例: `2026-07-31T23:59:59+09:00`
+3. `vercel deploy --prod` で再デプロイ
+
+### 受付を即時停止したい
+1. Vercel env で `FORM_ENABLED=false` を設定
+2. `vercel deploy --prod` で再デプロイ
+3. フォーム送信は API レベルで拒否される（クライアント表示は依然見えるが、送信は通らない）
+
+### 翌年度の運用切替
+1. `src/lib/validation.ts` の `ORDER_DEADLINE` と `FORM_HARD_DEADLINE_DEFAULT` を更新
+2. ヘッダー「2026年度」表記等の更新
+3. Supabase の旧データはアーカイブ（CSV エクスポート → Drive 保存）
