@@ -46,6 +46,31 @@ export async function POST(req: NextRequest) {
     }
     const input = parsed.data;
 
+    // 期限ハードガード: FORM_HARD_DEADLINE 以降または FORM_ENABLED=false なら拒否
+    const hardDeadline = getEnv('FORM_HARD_DEADLINE');
+    if (hardDeadline) {
+      const limit = new Date(hardDeadline).getTime();
+      if (!isNaN(limit) && Date.now() > limit) {
+        return NextResponse.json({ error: '受付期間を終了しました。お手数ですが、お電話（03-6272-6183）にてお問い合わせください。' }, { status: 410 });
+      }
+    }
+    if (getEnv('FORM_ENABLED') === 'false') {
+      return NextResponse.json({ error: '現在受付を停止しています。お手数ですが、お電話（03-6272-6183）にてお問い合わせください。' }, { status: 410 });
+    }
+
+    // 重複送信防止（idempotency）
+    const supabaseEarly = getServiceClient();
+    if (input.idempotencyKey) {
+      const { data: existing } = await supabaseEarly
+        .from('idempotency_keys')
+        .select('application_id, created_at')
+        .eq('key', input.idempotencyKey)
+        .maybeSingle();
+      if (existing) {
+        return NextResponse.json({ success: true, id: existing.application_id, duplicate: true });
+      }
+    }
+
     // ファイル取得＆検証（需要に応じた条件付き必須）
     type IncomingFile = { rowIndex: number; kind: 'santei' | 'roho'; file: File };
     const files: IncomingFile[] = [];
@@ -80,7 +105,7 @@ export async function POST(req: NextRequest) {
       if (c.needsNendoKoshin && roho instanceof File) files.push({ rowIndex: c.rowIndex, kind: 'roho', file: roho });
     }
 
-    const supabase = getServiceClient();
+    const supabase = supabaseEarly;
 
     // applications insert
     const { data: app, error: appErr } = await supabase
@@ -172,8 +197,32 @@ export async function POST(req: NextRequest) {
     const adminTo = getEnv('ADMIN_NOTIFY_EMAIL') || 'info@spot-s.jp';
     const adminCcRaw = getEnv('ADMIN_NOTIFY_CC');
     const adminCc = adminCcRaw ? [adminCcRaw] : undefined;
+    const fallbackTo = getEnv('ADMIN_NOTIFY_CC') || 'jamworksfujiki@gmail.com';
 
     const resend = getResend();
+
+    async function sendFailureAlert(failedType: string, originalError: unknown, ctxLines: string[]) {
+      try {
+        const errMsg = originalError instanceof Error ? originalError.message : String(originalError);
+        await resend.emails.send({
+          from: FROM_ADDRESS,
+          to: [fallbackTo],
+          subject: `【要確認】nendosantei-form ${failedType} 送信失敗 / ID:${applicationId ?? 'n/a'}`,
+          text: [
+            'メール送信が失敗しました。Supabase email_logs と Vercel ログをご確認ください。',
+            '',
+            `失敗した送信種別: ${failedType}`,
+            `受付ID: ${applicationId ?? 'n/a'}`,
+            `エラー: ${errMsg}`,
+            '',
+            '--- 申込内容 ---',
+            ...ctxLines,
+          ].join('\n'),
+        });
+      } catch (alertErr) {
+        console.error('fallback alert email failed', alertErr);
+      }
+    }
 
     // サンクスメール
     try {
@@ -198,6 +247,12 @@ export async function POST(req: NextRequest) {
         status: 'failed',
         error: e instanceof Error ? e.message : String(e),
       });
+      await sendFailureAlert('サンクスメール', e, [
+        `宛先: ${input.applicantEmail}`,
+        `事務所名: ${input.applicantOfficeName || '(未入力)'}`,
+        `担当者: ${input.applicantName}`,
+        `件数: ${input.contacts.length}件`,
+      ]);
     }
 
     // 内部通知メール
@@ -224,6 +279,19 @@ export async function POST(req: NextRequest) {
         status: 'failed',
         error: e instanceof Error ? e.message : String(e),
       });
+      await sendFailureAlert('管理者通知メール', e, [
+        `事務所名: ${input.applicantOfficeName || '(未入力)'}`,
+        `担当者: ${input.applicantName} / ${input.applicantEmail} / ${input.applicantPhone}`,
+        `件数: ${input.contacts.length}件`,
+      ]);
+    }
+
+    // idempotency 記録（成功時のみ）
+    if (input.idempotencyKey && applicationId) {
+      await supabase.from('idempotency_keys').insert({
+        key: input.idempotencyKey,
+        application_id: applicationId,
+      }).then(() => undefined, (err) => console.error('idempotency insert failed', err));
     }
 
     return NextResponse.json({ success: true, id: applicationId });

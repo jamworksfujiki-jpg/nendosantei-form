@@ -4,7 +4,7 @@ import { useMemo, useState, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { ContactRow, SubmissionMethod } from '@/lib/types';
-import { isAfterDeadline, EMAIL_REGEX, PHONE_REGEX } from '@/lib/validation';
+import { isAfterDeadline, isFormStopped, EMAIL_REGEX, PHONE_REGEX } from '@/lib/validation';
 import { parseContactsCsv, buildContactRowFromParsed } from '@/lib/csv';
 import ContactCard from './ContactCard';
 import DeadlineNotice from './DeadlineNotice';
@@ -43,7 +43,15 @@ export default function NendosanteiForm() {
   const [contactErrors, setContactErrors] = useState<Record<number, Record<string, string>>>({});
   const [globalError, setGlobalError] = useState<string | null>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
+  const idempotencyKeyRef = useRef<string>('');
+  if (!idempotencyKeyRef.current) {
+    idempotencyKeyRef.current =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `key-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
   const afterDeadline = useMemo(() => isAfterDeadline(), []);
+  const formStopped = useMemo(() => isFormStopped(), []);
 
   function addContact() {
     if (contacts.length >= MAX_CONTACTS) return;
@@ -132,6 +140,7 @@ export default function NendosanteiForm() {
     try {
       const formData = new FormData();
       const payload = {
+        idempotencyKey: idempotencyKeyRef.current,
         submissionMethod: 'form' as const,
         applicantOfficeName: applicantOfficeName.trim(),
         applicantName: applicantName.trim(),
@@ -164,6 +173,42 @@ export default function NendosanteiForm() {
       setGlobalError(err instanceof Error ? err.message : '送信に失敗しました');
       setSubmitting(false);
     }
+  }
+
+  if (formStopped) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <div className="bg-white border-b border-slate-200">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-center">
+            <Image
+              src="/spot-logo.png"
+              alt="スポット社労士くん"
+              width={260}
+              height={61}
+              priority
+              className="h-auto"
+            />
+          </div>
+        </div>
+        <main className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-12">
+          <div className="rounded-lg border-2 border-slate-300 bg-white p-8 text-center">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">
+              本年度の受付は終了しました
+            </h1>
+            <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
+              年度更新・算定基礎届のご依頼受付期間（〜7/10）を終了しました。<br />
+              お手数ですが、お電話またはメールにて直接お問い合わせください。
+            </p>
+            <div className="mt-6 inline-block text-left rounded-md bg-slate-50 border border-slate-200 px-5 py-4 text-sm text-slate-800 leading-relaxed">
+              <p className="font-semibold text-slate-900 mb-1">スポット社労士くん社会保険労務士法人</p>
+              <p>TEL: <a href="tel:0362726183" className="text-blue-800 underline underline-offset-4">03-6272-6183</a></p>
+              <p>メール: <a href="mailto:info@spot-s.jp" className="text-blue-800 underline underline-offset-4">info@spot-s.jp</a></p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   return (
