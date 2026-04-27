@@ -376,7 +376,7 @@ export default function NendosanteiForm() {
             <div className="section-body">
               <div className="rounded-lg bg-slate-50 border border-slate-200 p-4">
                 <p className="text-lg sm:text-xl text-slate-900 font-semibold">
-                  <a href="mailto:yui@spot-s.or.jp" className="text-blue-700 underline underline-offset-4 decoration-blue-300 hover:decoration-blue-900">yui@spot-s.or.jp</a>
+                  <a href="mailto:yui@100ten.co.jp" className="text-blue-700 underline underline-offset-4 decoration-blue-300 hover:decoration-blue-900">yui@100ten.co.jp</a>
                 </p>
               </div>
               <p className="mt-4 text-sm text-slate-600 leading-relaxed">

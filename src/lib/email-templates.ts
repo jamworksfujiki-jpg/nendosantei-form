@@ -13,7 +13,7 @@ https://spot-s.or.jp/
 
 const SUBMISSION_LABEL: Record<ApplicationInput['submissionMethod'], string> = {
   paper: '紙で当社に送付',
-  email: 'メールで送信（yui@spot-s.or.jp）',
+  email: 'メールで送信（yui@100ten.co.jp）',
   form: 'フォームから入力',
 };
 

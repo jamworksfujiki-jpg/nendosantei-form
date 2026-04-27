@@ -297,6 +297,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, id: applicationId });
   } catch (err) {
     console.error('submit error', err);
+    // 予期せぬ500エラーを管理者に即時通知（Sentry代替）
+    try {
+      const fallbackTo = getEnv('ADMIN_NOTIFY_CC') || 'jamworksfujiki@gmail.com';
+      const resend = getResend();
+      const detail = err instanceof Error ? `${err.message}\n\n${err.stack ?? ''}` : String(err);
+      await resend.emails.send({
+        from: FROM_ADDRESS,
+        to: [fallbackTo],
+        subject: `【緊急】nendosantei-form 送信エラー / ID:${applicationId ?? 'n/a'}`,
+        text: [
+          'フォーム送信中にエラーが発生しました。Vercel Logs を確認してください。',
+          '',
+          `受付ID: ${applicationId ?? 'n/a'} (DBに途中まで書き込まれている可能性あり)`,
+          `発生時刻: ${new Date().toISOString()}`,
+          '',
+          '--- エラー詳細 ---',
+          detail,
+        ].join('\n'),
+      });
+    } catch (alertErr) {
+      console.error('emergency alert failed', alertErr);
+    }
     return NextResponse.json({ error: '送信処理に失敗しました。お手数ですが、しばらくしてから再度お試しください。' }, { status: 500 });
   }
 }
