@@ -148,7 +148,62 @@ export default function NendosanteiForm() {
     }
     setSubmitting(true);
     try {
-      const formData = new FormData();
+      // 1) Supabase Storage の signed upload URL を /api/upload-token で取得
+      const fileRequests: { rowIndex: number; kind: 'santei' | 'roho'; file: File }[] = [];
+      contacts.forEach((c) => {
+        if (c.needsNendoKoshin && c.rohoFile) fileRequests.push({ rowIndex: c.rowIndex, kind: 'roho', file: c.rohoFile });
+        if (c.needsSantei && c.santeiFile) fileRequests.push({ rowIndex: c.rowIndex, kind: 'santei', file: c.santeiFile });
+      });
+
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+      const tokenRes = await fetch('/api/upload-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          files: fileRequests.map((f) => ({
+            rowIndex: f.rowIndex,
+            kind: f.kind,
+            filename: f.file.name,
+          })),
+        }),
+      });
+      const tokenJson = await tokenRes.json();
+      if (!tokenRes.ok) throw new Error(tokenJson.error || 'アップロード許可の取得に失敗しました');
+      const tickets: Array<{ rowIndex: number; kind: 'santei' | 'roho'; path: string; token: string; signedUrl: string }> = tokenJson.tickets;
+
+      // 2) 各ファイルを Supabase Storage に直接 PUT
+      const uploadedFiles: Array<{ rowIndex: number; kind: 'santei' | 'roho'; storagePath: string; originalFilename: string; sizeBytes: number; mimeType?: string }> = [];
+      for (const f of fileRequests) {
+        const ticket = tickets.find((t) => t.rowIndex === f.rowIndex && t.kind === f.kind);
+        if (!ticket) throw new Error(`チケットが見つかりません: #${f.rowIndex} ${f.kind}`);
+        const uploadUrl = ticket.signedUrl.startsWith('http')
+          ? ticket.signedUrl
+          : `${supabaseUrl}${ticket.signedUrl}`;
+        const upRes = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: {
+            apikey: supabaseAnon,
+            'Content-Type': f.file.type || 'application/octet-stream',
+          },
+          body: f.file,
+        });
+        if (!upRes.ok) {
+          const errBody = await upRes.text();
+          throw new Error(`ファイルアップロード失敗 (#${f.rowIndex} ${f.kind}): ${errBody.slice(0, 100)}`);
+        }
+        uploadedFiles.push({
+          rowIndex: f.rowIndex,
+          kind: f.kind,
+          storagePath: ticket.path,
+          originalFilename: f.file.name,
+          sizeBytes: f.file.size,
+          mimeType: f.file.type || undefined,
+        });
+      }
+
+      // 3) JSON のみで /api/submit に申込内容を送信
       const payload = {
         idempotencyKey: idempotencyKeyRef.current,
         submissionMethod: 'form' as const,
@@ -166,15 +221,21 @@ export default function NendosanteiForm() {
           email: c.email.trim(),
           needsNendoKoshin: c.needsNendoKoshin,
           needsSantei: c.needsSantei,
+          files: uploadedFiles.filter((f) => f.rowIndex === c.rowIndex).map((f) => ({
+            kind: f.kind,
+            storagePath: f.storagePath,
+            originalFilename: f.originalFilename,
+            sizeBytes: f.sizeBytes,
+            mimeType: f.mimeType,
+          })),
         })),
       };
-      formData.append('payload', JSON.stringify(payload));
-      contacts.forEach((c) => {
-        if (c.santeiFile) formData.append(`file_${c.rowIndex}_santei`, c.santeiFile);
-        if (c.rohoFile) formData.append(`file_${c.rowIndex}_roho`, c.rohoFile);
-      });
 
-      const res = await fetch('/api/submit', { method: 'POST', body: formData });
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || '送信に失敗しました');
       router.push('/thanks');

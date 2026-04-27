@@ -18,6 +18,14 @@ export function isFormStopped(now: Date = new Date()): boolean {
   return now.getTime() > limit.getTime();
 }
 
+export const uploadedFileSchema = z.object({
+  kind: z.enum(['santei', 'roho']),
+  storagePath: z.string().min(1).max(500),
+  originalFilename: z.string().min(1).max(200),
+  sizeBytes: z.number().int().min(1).max(5 * 1024 * 1024),
+  mimeType: z.string().max(120).optional(),
+});
+
 export const contactSchema = z
   .object({
     rowIndex: z.number().int().min(1).max(50),
@@ -27,6 +35,7 @@ export const contactSchema = z
     email: z.string().trim().regex(EMAIL_REGEX, 'メールアドレスの形式が正しくありません').max(255),
     needsNendoKoshin: z.boolean(),
     needsSantei: z.boolean(),
+    files: z.array(uploadedFileSchema).optional().default([]),
   })
   .refine((c) => c.needsNendoKoshin || c.needsSantei, {
     message: '年度更新または算定基礎届のいずれかを選択してください',

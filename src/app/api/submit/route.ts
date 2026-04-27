@@ -15,29 +15,15 @@ function getResend() {
   return new Resend(key);
 }
 
-const ALLOWED_MIME = new Set([
-  'application/pdf',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'image/png',
-  'image/jpeg',
-]);
-const MAX_FILE_BYTES = 5 * 1024 * 1024;
-
-function safeFilename(name: string) {
-  return name.replace(/[^\w.\-_]/g, '_').slice(0, 120);
-}
-
 export async function POST(req: NextRequest) {
   let applicationId: string | null = null;
   try {
-    const formData = await req.formData();
-    const payloadStr = formData.get('payload');
-    if (typeof payloadStr !== 'string') {
-      return NextResponse.json({ error: 'payloadが見つかりません' }, { status: 400 });
+    const json = await req.json().catch(() => null);
+    if (!json) {
+      return NextResponse.json({ error: 'invalid request body' }, { status: 400 });
     }
 
-    const parsed = applicationSchema.safeParse(JSON.parse(payloadStr));
+    const parsed = applicationSchema.safeParse(json);
     if (!parsed.success) {
       return NextResponse.json(
         { error: '入力内容に誤りがあります', details: parsed.error.flatten() },
@@ -46,7 +32,7 @@ export async function POST(req: NextRequest) {
     }
     const input = parsed.data;
 
-    // 期限ハードガード: FORM_HARD_DEADLINE 以降または FORM_ENABLED=false なら拒否
+    // 期限ハードガード
     const hardDeadline = getEnv('FORM_HARD_DEADLINE');
     if (hardDeadline) {
       const limit = new Date(hardDeadline).getTime();
@@ -58,10 +44,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '現在受付を停止しています。お手数ですが、お電話（03-6272-6183）にてお問い合わせください。' }, { status: 410 });
     }
 
+    const supabase = getServiceClient();
+
     // 重複送信防止（idempotency）
-    const supabaseEarly = getServiceClient();
     if (input.idempotencyKey) {
-      const { data: existing } = await supabaseEarly
+      const { data: existing } = await supabase
         .from('idempotency_keys')
         .select('application_id, created_at')
         .eq('key', input.idempotencyKey)
@@ -71,41 +58,20 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ファイル取得＆検証（需要に応じた条件付き必須）
-    type IncomingFile = { rowIndex: number; kind: 'santei' | 'roho'; file: File };
-    const files: IncomingFile[] = [];
+    // 必要に応じたファイル検証
     for (const c of input.contacts) {
       if (!c.needsNendoKoshin && !c.needsSantei) {
         return NextResponse.json({ error: `顧問先#${c.rowIndex} のご依頼内容を選択してください` }, { status: 400 });
       }
-      const santei = formData.get(`file_${c.rowIndex}_santei`);
-      const roho = formData.get(`file_${c.rowIndex}_roho`);
-      if (c.needsSantei) {
-        if (!(santei instanceof File) || santei.size === 0) {
-          return NextResponse.json({ error: `顧問先#${c.rowIndex} の算定基礎届が添付されていません` }, { status: 400 });
-        }
+      const hasSantei = c.files.some((f) => f.kind === 'santei');
+      const hasRoho = c.files.some((f) => f.kind === 'roho');
+      if (c.needsSantei && !hasSantei) {
+        return NextResponse.json({ error: `顧問先#${c.rowIndex} の算定基礎届がアップロードされていません` }, { status: 400 });
       }
-      if (c.needsNendoKoshin) {
-        if (!(roho instanceof File) || roho.size === 0) {
-          return NextResponse.json({ error: `顧問先#${c.rowIndex} の労働保険料申告書が添付されていません` }, { status: 400 });
-        }
+      if (c.needsNendoKoshin && !hasRoho) {
+        return NextResponse.json({ error: `顧問先#${c.rowIndex} の労働保険料申告書がアップロードされていません` }, { status: 400 });
       }
-      const toValidate: File[] = [];
-      if (c.needsSantei && santei instanceof File) toValidate.push(santei);
-      if (c.needsNendoKoshin && roho instanceof File) toValidate.push(roho);
-      for (const f of toValidate) {
-        if (f.size > MAX_FILE_BYTES) {
-          return NextResponse.json({ error: `ファイル ${f.name} が5MBを超えています` }, { status: 400 });
-        }
-        if (f.type && !ALLOWED_MIME.has(f.type) && !/\.(pdf|xlsx?|png|jpe?g)$/i.test(f.name)) {
-          return NextResponse.json({ error: `ファイル ${f.name} の形式が対応していません` }, { status: 400 });
-        }
-      }
-      if (c.needsSantei && santei instanceof File) files.push({ rowIndex: c.rowIndex, kind: 'santei', file: santei });
-      if (c.needsNendoKoshin && roho instanceof File) files.push({ rowIndex: c.rowIndex, kind: 'roho', file: roho });
     }
-
-    const supabase = supabaseEarly;
 
     // applications insert
     const { data: app, error: appErr } = await supabase
@@ -147,7 +113,7 @@ export async function POST(req: NextRequest) {
     const contactIdByRow = new Map<number, string>();
     insertedContacts.forEach((row) => contactIdByRow.set(row.row_index as number, row.id as string));
 
-    // ファイルアップロード
+    // pending → applications/<id>/<contactId>/ に Storage 上で移動
     const fileRecords: Array<{
       contact_id: string;
       file_kind: 'santei' | 'roho';
@@ -158,33 +124,33 @@ export async function POST(req: NextRequest) {
     }> = [];
     const fileLinks: string[] = [];
 
-    for (const f of files) {
-      const contactId = contactIdByRow.get(f.rowIndex);
+    for (const c of input.contacts) {
+      const contactId = contactIdByRow.get(c.rowIndex);
       if (!contactId) continue;
-      const safeName = safeFilename(f.file.name);
-      const storagePath = `applications/${applicationId}/${contactId}/${f.kind}_${safeName}`;
-      const arrayBuf = await f.file.arrayBuffer();
-      const { error: upErr } = await supabase.storage
-        .from(STORAGE_BUCKET)
-        .upload(storagePath, arrayBuf, {
-          contentType: f.file.type || 'application/octet-stream',
-          upsert: false,
+      for (const f of c.files) {
+        const finalPath = `applications/${applicationId}/${contactId}/${f.kind}_${f.originalFilename.replace(/[^\w.\-_]/g, '_').slice(0, 120)}`;
+        const { error: moveErr } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .move(f.storagePath, finalPath);
+        if (moveErr) {
+          console.error('storage move error', moveErr, { from: f.storagePath, to: finalPath });
+          continue;
+        }
+        fileRecords.push({
+          contact_id: contactId,
+          file_kind: f.kind,
+          storage_path: finalPath,
+          original_filename: f.originalFilename,
+          mime_type: f.mimeType ?? null,
+          size_bytes: f.sizeBytes,
         });
-      if (upErr) throw upErr;
-      fileRecords.push({
-        contact_id: contactId,
-        file_kind: f.kind,
-        storage_path: storagePath,
-        original_filename: f.file.name,
-        mime_type: f.file.type || null,
-        size_bytes: f.file.size,
-      });
-      const { data: signed } = await supabase.storage
-        .from(STORAGE_BUCKET)
-        .createSignedUrl(storagePath, SIGNED_URL_EXPIRES_SEC);
-      if (signed?.signedUrl) {
-        const kindLabel = f.kind === 'santei' ? '算定基礎届' : '労働保険料申告書';
-        fileLinks.push(`#${f.rowIndex} ${kindLabel}: ${signed.signedUrl}`);
+        const { data: signed } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .createSignedUrl(finalPath, SIGNED_URL_EXPIRES_SEC);
+        if (signed?.signedUrl) {
+          const kindLabel = f.kind === 'santei' ? '算定基礎届' : '労働保険料申告書';
+          fileLinks.push(`#${c.rowIndex} ${kindLabel}: ${signed.signedUrl}`);
+        }
       }
     }
 
@@ -297,7 +263,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, id: applicationId });
   } catch (err) {
     console.error('submit error', err);
-    // 予期せぬ500エラーを管理者に即時通知（Sentry代替）
     try {
       const fallbackTo = getEnv('ADMIN_NOTIFY_CC') || 'jamworksfujiki@gmail.com';
       const resend = getResend();
