@@ -57,6 +57,13 @@ const SUBMISSION_LABEL: Record<ApplicationRow['submission_method'], string> = {
   form: 'フォームから入力',
 };
 
+const STATUS_LABEL: Record<string, string> = {
+  received: '受付済',
+  processing: '対応中',
+  done: '完了',
+  cancelled: 'キャンセル',
+};
+
 function formatJpy(n: number) {
   return n.toLocaleString('ja-JP');
 }
@@ -508,12 +515,12 @@ export default function AdminPage() {
                       {SUBMISSION_LABEL[r.submission_method] ?? r.submission_method}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 text-slate-700 max-w-xs">
+                  <td className="px-3 py-2.5 text-slate-700">
                     {contacts.length === 0 ? (
-                      <span className="text-slate-400 text-xs">（紙・メール受付）</span>
-                    ) : isExpanded ? (
-                      <ul className="space-y-2 text-xs">
-                        {contacts.map((c, i) => {
+                      <span className="text-slate-400 text-xs">（顧問先未登録）</span>
+                    ) : (
+                      <ul className="space-y-2.5 text-xs">
+                        {(isExpanded || contacts.length <= 3 ? contacts : contacts.slice(0, 3)).map((c, i) => {
                           const rohoFile = c.application_files?.find((f) => f.file_kind === 'roho');
                           const santeiFile = c.application_files?.find((f) => f.file_kind === 'santei');
                           return (
@@ -529,13 +536,17 @@ export default function AdminPage() {
                                   {c.needs_santei && '算定'}
                                 </span>
                               </div>
-                              <div className="text-slate-500 mt-0.5">
+                              <div className="text-slate-600 mt-0.5">
                                 {c.contact_name ?? ''} / {c.phone ?? ''} / {c.email ?? ''}
-                                {c.employee_count != null && c.employee_count !== undefined && (
-                                  <> / 従業員 {c.employee_count}名</>
+                              </div>
+                              <div className="text-slate-600 mt-0.5 flex flex-wrap items-center gap-1.5">
+                                {c.employee_count != null && (
+                                  <span>従業員 <span className="font-semibold text-slate-900">{c.employee_count}</span> 名</span>
                                 )}
-                                {c.freee_invited && (
-                                  <span className="ml-1.5 inline-block px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200">freee招待済</span>
+                                {c.freee_invited ? (
+                                  <span className="inline-block px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200">freee招待済</span>
+                                ) : (
+                                  <span className="inline-block px-1.5 py-0.5 rounded text-[10px] bg-slate-50 text-slate-500 border border-slate-200">freee未招待</span>
                                 )}
                               </div>
                               {(rohoFile || santeiFile) && (
@@ -563,24 +574,14 @@ export default function AdminPage() {
                             </li>
                           );
                         })}
-                        <li>
-                          <button onClick={() => toggleExpand(r.id)} className="text-blue-800 hover:underline text-xs mt-1">
-                            閉じる
-                          </button>
-                        </li>
-                      </ul>
-                    ) : (
-                      <div className="text-xs">
-                        <span className="truncate block max-w-[220px]">
-                          {contacts.slice(0, 2).map((c) => c.company_name).join('、')}
-                          {contacts.length > 2 && ` 他${contacts.length - 2}社`}
-                        </span>
-                        {contacts.length > 1 && (
-                          <button onClick={() => toggleExpand(r.id)} className="text-blue-800 hover:underline mt-0.5">
-                            すべて表示
-                          </button>
+                        {contacts.length > 3 && (
+                          <li>
+                            <button onClick={() => toggleExpand(r.id)} className="text-blue-800 hover:underline text-xs mt-1 font-semibold">
+                              {isExpanded ? '↑ 閉じる' : `↓ 残り ${contacts.length - 3} 社を表示`}
+                            </button>
+                          </li>
                         )}
-                      </div>
+                      </ul>
                     )}
                   </td>
                   <td className="px-3 py-2.5 text-center font-mono tabular-nums text-slate-900">
@@ -592,7 +593,18 @@ export default function AdminPage() {
                   <td className="px-3 py-2.5 text-right font-mono tabular-nums text-slate-900">
                     ¥{formatJpy(r.revenue)}
                   </td>
-                  <td className="px-3 py-2.5 text-slate-600 text-xs">{r.status}</td>
+                  <td className="px-3 py-2.5 text-xs">
+                    <span className={
+                      'inline-block px-2 py-0.5 rounded font-semibold ' +
+                      (r.status === 'received' ? 'bg-blue-50 text-blue-800 border border-blue-200'
+                        : r.status === 'processing' ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                        : r.status === 'done' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                        : r.status === 'cancelled' ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                        : 'bg-slate-50 text-slate-700 border border-slate-200')
+                    }>
+                      {STATUS_LABEL[r.status] ?? r.status}
+                    </span>
+                  </td>
                 </tr>
               );
             })}
