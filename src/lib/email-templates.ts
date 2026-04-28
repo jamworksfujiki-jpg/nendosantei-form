@@ -12,8 +12,8 @@ https://spot-s.or.jp/
 ━━━━━━━━━━━━━━━━━━━━`;
 
 const SUBMISSION_LABEL: Record<ApplicationInput['submissionMethod'], string> = {
-  paper: '紙で当社に送付',
-  email: 'メールで送信（yui@100ten.co.jp）',
+  paper: '紙でご郵送（スポット社労士くん 宛）',
+  email: 'メールで送信（yui@100ten.co.jp 宛）',
   form: 'フォームから入力',
 };
 
@@ -109,7 +109,7 @@ export function buildAdminNotifyEmail(input: ApplicationInput, applicationId: st
 
 ■ ご依頼者
   会計事務所名: ${input.applicantOfficeName || '（未入力）'}
-  ご担当者名: ${input.applicantName}
+  お名前: ${input.applicantName}
   メール: ${input.applicantEmail}
   電話: ${input.applicantPhone}
   提出方法: ${SUBMISSION_LABEL[input.submissionMethod]}
@@ -125,7 +125,7 @@ export function buildAdminNotifyEmail(input: ApplicationInput, applicationId: st
 ■ 顧問先一覧
 ${contactsText}
 
-■ 添付ファイル（7日間有効署名URL）
+■ 添付ファイル（30日間有効署名URL）
 ${fileLinksText}
 
 ${COMPANY_FOOTER}`;
