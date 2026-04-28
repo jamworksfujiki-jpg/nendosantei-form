@@ -30,9 +30,12 @@ export const contactSchema = z
   .object({
     rowIndex: z.number().int().min(1).max(50),
     companyName: z.string().trim().min(1, '紹介会社名を入力してください').max(200),
+    companyNameKana: z.string().trim().max(200).optional().default(''),
+    employeeCount: z.number().int().min(0).max(10000).nullable().optional(),
     contactName: z.string().trim().min(1, 'ご担当者名を入力してください').max(100),
     phone: z.string().trim().regex(PHONE_REGEX, '電話番号の形式が正しくありません'),
     email: z.string().trim().regex(EMAIL_REGEX, 'メールアドレスの形式が正しくありません').max(255),
+    freeeInvited: z.boolean().optional().default(false),
     needsNendoKoshin: z.boolean(),
     needsSantei: z.boolean(),
     files: z.array(uploadedFileSchema).optional().default([]),

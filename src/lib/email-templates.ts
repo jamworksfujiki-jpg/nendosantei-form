@@ -37,8 +37,15 @@ export function buildThanksEmail(input: ApplicationInput) {
   const totals = computeTotals(input.contacts);
   const contactsText = input.contacts
     .map(
-      (c, i) =>
-        `  ${String(i + 1).padStart(2, ' ')}. ${c.companyName} / ${c.contactName} / ${c.phone} / ${c.email}\n      → ${serviceLabel(c)}`,
+      (c, i) => {
+        const lines = [
+          `  ${String(i + 1).padStart(2, ' ')}. ${c.companyName}` + (c.companyNameKana ? ` （${c.companyNameKana}）` : ''),
+          `      担当: ${c.contactName} / ${c.phone} / ${c.email}`,
+          `      従業員: ${c.employeeCount != null ? `${c.employeeCount}名` : '未入力'} / freee招待: ${c.freeeInvited ? '済' : '未'}`,
+          `      → ${serviceLabel(c)}`,
+        ];
+        return lines.join('\n');
+      },
     )
     .join('\n');
 
@@ -80,8 +87,15 @@ export function buildAdminNotifyEmail(input: ApplicationInput, applicationId: st
   const subject = `【新規受注】年度更新・算定基礎届 ${input.applicantOfficeName || input.applicantName} ${totals.serviceCount}項目 (${totals.total.toLocaleString('ja-JP')}円)`;
   const contactsText = input.contacts
     .map(
-      (c, i) =>
-        `  ${String(i + 1).padStart(2, ' ')}. ${c.companyName} / ${c.contactName} / ${c.phone} / ${c.email}\n      → ${serviceLabel(c)}`,
+      (c, i) => {
+        const lines = [
+          `  ${String(i + 1).padStart(2, ' ')}. ${c.companyName}` + (c.companyNameKana ? ` （${c.companyNameKana}）` : ''),
+          `      担当: ${c.contactName} / ${c.phone} / ${c.email}`,
+          `      従業員: ${c.employeeCount != null ? `${c.employeeCount}名` : '未入力'} / freee招待: ${c.freeeInvited ? '済' : '未'}`,
+          `      → ${serviceLabel(c)}`,
+        ];
+        return lines.join('\n');
+      },
     )
     .join('\n');
   const fileLinksText = fileLinks.length > 0

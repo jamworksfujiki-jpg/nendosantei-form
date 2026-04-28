@@ -13,9 +13,12 @@ interface ContactRow {
   id: string;
   row_index: number;
   company_name: string;
+  company_name_kana?: string | null;
+  employee_count?: number | null;
   contact_name?: string;
   phone?: string;
   email?: string;
+  freee_invited?: boolean | null;
   needs_nendo_koshin?: boolean;
   needs_santei?: boolean;
   application_files?: FileRow[];
@@ -128,6 +131,30 @@ export default function AdminPage() {
     }
   }
 
+  async function downloadExcel() {
+    try {
+      const res = await fetch('/api/admin/export', {
+        headers: { 'x-admin-password': password },
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error || 'エクスポート失敗');
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const today = new Date();
+      a.download = `nendosantei-export-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'エラー');
+    }
+  }
+
   async function downloadFile(fileId: string) {
     try {
       const res = await fetch(`/api/admin/file?fileId=${encodeURIComponent(fileId)}`, {
@@ -163,9 +190,17 @@ export default function AdminPage() {
 
   return (
     <main className="max-w-6xl mx-auto p-4 sm:p-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-2">
         <h1 className="text-xl sm:text-2xl font-bold text-slate-900">受注管理</h1>
-        <button onClick={() => { load(password); if (tab === 'failed') loadFailedLogs(); }} className="btn-secondary">再読込</button>
+        <div className="flex gap-2">
+          <button onClick={downloadExcel} className="h-11 px-4 rounded-md font-medium text-white bg-emerald-700 hover:bg-emerald-800 inline-flex items-center gap-2 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" className="w-4 h-4" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Excelダウンロード
+          </button>
+          <button onClick={() => { load(password); if (tab === 'failed') loadFailedLogs(); }} className="btn-secondary">再読込</button>
+        </div>
       </div>
 
       <div className="mb-5 flex gap-1 border-b border-slate-200">
@@ -309,11 +344,23 @@ export default function AdminPage() {
                             <li key={i} className="border-l-2 border-slate-200 pl-2">
                               <div>
                                 <span className="font-semibold">#{i + 1} {c.company_name}</span>
+                                {c.company_name_kana && (
+                                  <span className="ml-1.5 text-slate-400">（{c.company_name_kana}）</span>
+                                )}
                                 <span className="ml-2 text-slate-400">
                                   {c.needs_nendo_koshin && '年度更新'}
                                   {c.needs_nendo_koshin && c.needs_santei && '＋'}
                                   {c.needs_santei && '算定'}
                                 </span>
+                              </div>
+                              <div className="text-slate-500 mt-0.5">
+                                {c.contact_name ?? ''} / {c.phone ?? ''} / {c.email ?? ''}
+                                {c.employee_count != null && c.employee_count !== undefined && (
+                                  <> / 従業員 {c.employee_count}名</>
+                                )}
+                                {c.freee_invited && (
+                                  <span className="ml-1.5 inline-block px-1.5 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200">freee招待済</span>
+                                )}
                               </div>
                               {(rohoFile || santeiFile) && (
                                 <div className="mt-1 flex flex-wrap gap-1.5">

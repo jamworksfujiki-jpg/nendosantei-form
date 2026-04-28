@@ -4,9 +4,12 @@ export type FileKind = 'santei' | 'roho' | 'other';
 export interface ContactRow {
   rowIndex: number;
   companyName: string;
+  companyNameKana: string;
+  employeeCount: string;
   contactName: string;
   phone: string;
   email: string;
+  freeeInvited: boolean;
   needsNendoKoshin: boolean;
   needsSantei: boolean;
   santeiFile?: File | null;

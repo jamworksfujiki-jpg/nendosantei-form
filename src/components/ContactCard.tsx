@@ -124,7 +124,7 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
         <div>
           <label htmlFor={`${idBase}-company`} className="block text-sm font-semibold text-slate-800 mb-2">
-            紹介会社名<span className="badge-required">必須</span>
+            顧問先様会社名<span className="text-xs font-normal text-slate-500 ml-1">（個人の場合は屋号）</span><span className="badge-required">必須</span>
           </label>
           <input
             id={`${idBase}-company`}
@@ -132,15 +132,45 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
             className="input-base"
             value={contact.companyName}
             onChange={(e) => onUpdate(contact.rowIndex, { companyName: e.target.value })}
-            placeholder="例）株式会社○○"
+            placeholder="例）株式会社サンプル"
             aria-invalid={!!errors?.companyName}
             autoComplete="organization"
           />
           {errors?.companyName && <p className="text-sm text-red-600 mt-1.5">⚠ {errors.companyName}</p>}
         </div>
         <div>
+          <label htmlFor={`${idBase}-companykana`} className="block text-sm font-semibold text-slate-800 mb-2">
+            会社名（カナ）<span className="badge-optional">任意</span>
+          </label>
+          <input
+            id={`${idBase}-companykana`}
+            type="text"
+            className="input-base"
+            value={contact.companyNameKana}
+            onChange={(e) => onUpdate(contact.rowIndex, { companyNameKana: e.target.value })}
+            placeholder="例）カブシキガイシャサンプル"
+          />
+        </div>
+        <div>
+          <label htmlFor={`${idBase}-employees`} className="block text-sm font-semibold text-slate-800 mb-2">
+            従業員数<span className="text-xs font-normal text-slate-500 ml-1">（役員含む）</span><span className="badge-optional">任意</span>
+          </label>
+          <input
+            id={`${idBase}-employees`}
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={10000}
+            className="input-base"
+            value={contact.employeeCount}
+            onChange={(e) => onUpdate(contact.rowIndex, { employeeCount: e.target.value })}
+            placeholder="例）5"
+          />
+          <p className="text-xs text-slate-500 mt-1.5">対象は30名以下の顧問先のみ</p>
+        </div>
+        <div>
           <label htmlFor={`${idBase}-contact`} className="block text-sm font-semibold text-slate-800 mb-2">
-            ご担当者名<span className="badge-required">必須</span>
+            ご担当者様名<span className="badge-required">必須</span>
           </label>
           <input
             id={`${idBase}-contact`}
@@ -165,7 +195,7 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
             className="input-base"
             value={contact.phone}
             onChange={(e) => onUpdate(contact.rowIndex, { phone: e.target.value })}
-            placeholder="例）03-1234-5678"
+            placeholder="例）090-1234-5678"
             aria-invalid={!!errors?.phone}
             autoComplete="tel"
           />
@@ -173,7 +203,7 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
         </div>
         <div>
           <label htmlFor={`${idBase}-email`} className="block text-sm font-semibold text-slate-800 mb-2">
-            連絡先メールアドレス<span className="badge-required">必須</span>
+            メールアドレス<span className="badge-required">必須</span>
           </label>
           <input
             id={`${idBase}-email`}
@@ -182,12 +212,30 @@ export default function ContactCard({ contact, index, total, onUpdate, onRemove,
             className="input-base"
             value={contact.email}
             onChange={(e) => onUpdate(contact.rowIndex, { email: e.target.value })}
-            placeholder="例）example@example.com"
+            placeholder="例）sample@example.com"
             aria-invalid={!!errors?.email}
             autoComplete="email"
           />
           {errors?.email && <p className="text-sm text-red-600 mt-1.5">⚠ {errors.email}</p>}
         </div>
+      </div>
+      <div className="mt-4">
+        <label className={
+          'flex items-center gap-3 px-4 h-12 rounded-md border-2 cursor-pointer transition-colors ' +
+          (contact.freeeInvited
+            ? 'border-emerald-500 bg-emerald-50 text-emerald-900'
+            : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-300 hover:bg-emerald-50/30')
+        }>
+          <input
+            type="checkbox"
+            checked={contact.freeeInvited}
+            onChange={(e) => onUpdate(contact.rowIndex, { freeeInvited: e.target.checked })}
+            className="h-5 w-5 accent-emerald-600"
+          />
+          <span className="text-sm font-medium">
+            （freee人事労務）スポット社労士くんを管理者として招待済み
+          </span>
+        </label>
       </div>
       <div className="mt-5 pt-5 border-t border-slate-100">
         <p className="text-sm font-semibold text-slate-800 mb-2">

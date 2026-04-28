@@ -31,7 +31,8 @@ export async function GET(req: NextRequest) {
       id, submission_method, applicant_office_name, applicant_name,
       applicant_email, applicant_phone, total_contacts, status, created_at,
       application_contacts (
-        id, row_index, company_name, contact_name, phone, email,
+        id, row_index, company_name, company_name_kana, employee_count,
+        contact_name, phone, email, freee_invited,
         needs_nendo_koshin, needs_santei,
         application_files ( id, file_kind, original_filename, size_bytes )
       )

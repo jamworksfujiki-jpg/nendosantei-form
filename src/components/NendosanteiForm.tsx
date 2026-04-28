@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { ContactRow, SubmissionMethod } from '@/lib/types';
 import { isAfterDeadline, isFormStopped, EMAIL_REGEX, PHONE_REGEX } from '@/lib/validation';
-import { parseContactsCsv, buildContactRowFromParsed } from '@/lib/csv';
+import { parseContactsXlsx, buildContactRowFromParsed } from '@/lib/import-xlsx';
 import ContactCard from './ContactCard';
 import DeadlineNotice from './DeadlineNotice';
 import PriceBadge from './PriceBadge';
@@ -19,9 +19,12 @@ function emptyContact(rowIndex: number): ContactRow {
   return {
     rowIndex,
     companyName: '',
+    companyNameKana: '',
+    employeeCount: '',
     contactName: '',
     phone: '',
     email: '',
+    freeeInvited: false,
     needsNendoKoshin: true,
     needsSantei: true,
     santeiFile: null,
@@ -72,13 +75,13 @@ export default function NendosanteiForm() {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const parsed = await parseContactsCsv(file);
+      const parsed = await parseContactsXlsx(file);
       if (parsed.length === 0) {
-        alert('CSVからデータを読み取れませんでした。テンプレートの形式を確認してください。');
+        alert('Excelからデータを読み取れませんでした。テンプレートの形式を確認してください。');
         return;
       }
       const decision = window.confirm(
-        `CSVから ${parsed.length} 件読み込みました。\n\n[OK] 既存入力を置き換える\n[キャンセル] 既存入力に追記する`,
+        `Excelから ${parsed.length} 件読み込みました。\n\n[OK] 既存入力を置き換える\n[キャンセル] 既存入力に追記する`,
       );
       if (decision) {
         setContacts(parsed.map((p, i) => buildContactRowFromParsed(p, i + 1)));
@@ -109,7 +112,7 @@ export default function NendosanteiForm() {
 
     contacts.forEach((c) => {
       const ce: Record<string, string> = {};
-      if (!c.companyName.trim()) ce.companyName = '紹介会社名を入力してください';
+      if (!c.companyName.trim()) ce.companyName = '顧問先様会社名を入力してください';
       if (!c.contactName.trim()) ce.contactName = 'ご担当者名を入力してください';
       if (!c.phone.trim()) ce.phone = '電話番号を入力してください';
       else if (!PHONE_REGEX.test(c.phone.trim())) ce.phone = '電話番号の形式が正しくありません';
@@ -213,22 +216,28 @@ export default function NendosanteiForm() {
         applicantPhone: applicantPhone.trim(),
         deadlineAcknowledged,
         privacyAgreed,
-        contacts: contacts.map((c) => ({
-          rowIndex: c.rowIndex,
-          companyName: c.companyName.trim(),
-          contactName: c.contactName.trim(),
-          phone: c.phone.trim(),
-          email: c.email.trim(),
-          needsNendoKoshin: c.needsNendoKoshin,
-          needsSantei: c.needsSantei,
-          files: uploadedFiles.filter((f) => f.rowIndex === c.rowIndex).map((f) => ({
-            kind: f.kind,
-            storagePath: f.storagePath,
-            originalFilename: f.originalFilename,
-            sizeBytes: f.sizeBytes,
-            mimeType: f.mimeType,
-          })),
-        })),
+        contacts: contacts.map((c) => {
+          const empNum = c.employeeCount.trim() ? parseInt(c.employeeCount, 10) : null;
+          return {
+            rowIndex: c.rowIndex,
+            companyName: c.companyName.trim(),
+            companyNameKana: c.companyNameKana.trim(),
+            employeeCount: empNum != null && !isNaN(empNum) ? empNum : null,
+            contactName: c.contactName.trim(),
+            phone: c.phone.trim(),
+            email: c.email.trim(),
+            freeeInvited: c.freeeInvited,
+            needsNendoKoshin: c.needsNendoKoshin,
+            needsSantei: c.needsSantei,
+            files: uploadedFiles.filter((f) => f.rowIndex === c.rowIndex).map((f) => ({
+              kind: f.kind,
+              storagePath: f.storagePath,
+              originalFilename: f.originalFilename,
+              sizeBytes: f.sizeBytes,
+              mimeType: f.mimeType,
+            })),
+          };
+        }),
       };
 
       const res = await fetch('/api/submit', {
@@ -542,23 +551,22 @@ export default function NendosanteiForm() {
                     </svg>
                     <span>顧問先を追加</span>
                   </button>
-                  <a href="/csv-template/nendosantei-template.csv" download className="btn-ghost inline-flex items-center justify-center gap-2">
+                  <a href="/templates/nendosantei-template.xlsx" download className="btn-ghost inline-flex items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" className="w-4 h-4 shrink-0" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
-                    <span>CSVテンプレートをDL</span>
+                    <span>Excelテンプレートをダウンロード</span>
                   </a>
                   <label className="btn-ghost inline-flex items-center justify-center gap-2 cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" className="w-4 h-4 shrink-0" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                     </svg>
-                    <span>CSVから一括入力</span>
-                    <input ref={csvInputRef} type="file" accept=".csv,text/csv" className="sr-only" onChange={handleCsvUpload} />
+                    <span>Excelから一括入力</span>
+                    <input ref={csvInputRef} type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" className="sr-only" onChange={handleCsvUpload} />
                   </label>
                 </div>
                 <p className="mt-2.5 text-xs text-slate-500 leading-relaxed">
-                  ※ CSVテンプレートをダウンロードして編集 → 一括入力で最大50件まで読み込めます（ファイルは別途各カードに添付してください）<br />
-                  ※ Excelで保存する際は「<span className="font-semibold text-slate-700">CSV UTF-8（コンマ区切り）</span>」を選択してください（通常のCSVだと文字化けします）
+                  ※ Excelテンプレートをダウンロードして編集 → 一括入力で最大50件まで読み込めます（ファイルは別途各カードに添付してください）
                 </p>
               </div>
             </section>
