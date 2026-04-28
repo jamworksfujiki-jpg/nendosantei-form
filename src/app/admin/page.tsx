@@ -80,6 +80,18 @@ export default function AdminPage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [tab, setTab] = useState<'orders' | 'failed'>('orders');
   const [failedLogs, setFailedLogs] = useState<EmailLogRow[]>([]);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importMeta, setImportMeta] = useState({
+    submissionMethod: 'email' as 'paper' | 'email',
+    applicantOfficeName: '',
+    applicantName: '',
+    applicantEmail: '',
+    applicantPhone: '',
+    needsNendoKoshin: true,
+    needsSantei: true,
+  });
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importSubmitting, setImportSubmitting] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('nendosantei_admin_pw');
@@ -131,27 +143,44 @@ export default function AdminPage() {
     }
   }
 
-  async function downloadExcel() {
+  async function submitImport() {
+    if (!importFile) {
+      alert('Excelファイルを選択してください');
+      return;
+    }
+    if (!importMeta.applicantName.trim() || !importMeta.applicantEmail.trim() || !importMeta.applicantPhone.trim()) {
+      alert('申込者情報（お名前・メール・電話）は必須です');
+      return;
+    }
+    setImportSubmitting(true);
     try {
-      const res = await fetch('/api/admin/export', {
+      const fd = new FormData();
+      fd.append('meta', JSON.stringify(importMeta));
+      fd.append('file', importFile);
+      const res = await fetch('/api/admin/import', {
+        method: 'POST',
         headers: { 'x-admin-password': password },
+        body: fd,
       });
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
-        throw new Error(json.error || 'エクスポート失敗');
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const today = new Date();
-      a.download = `nendosantei-export-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || '取込失敗');
+      alert(`取り込み完了：顧問先 ${json.contactsCount} 社を登録しました`);
+      setImportOpen(false);
+      setImportFile(null);
+      setImportMeta({
+        submissionMethod: 'email',
+        applicantOfficeName: '',
+        applicantName: '',
+        applicantEmail: '',
+        applicantPhone: '',
+        needsNendoKoshin: true,
+        needsSantei: true,
+      });
+      load(password);
     } catch (e) {
       alert(e instanceof Error ? e.message : 'エラー');
+    } finally {
+      setImportSubmitting(false);
     }
   }
 
@@ -190,18 +219,165 @@ export default function AdminPage() {
 
   return (
     <main className="max-w-6xl mx-auto p-4 sm:p-8">
-      <div className="flex items-center justify-between mb-6 gap-2">
+      <div className="flex items-center justify-between mb-6 gap-2 flex-wrap">
         <h1 className="text-xl sm:text-2xl font-bold text-slate-900">受注管理</h1>
         <div className="flex gap-2">
-          <button onClick={downloadExcel} className="h-11 px-4 rounded-md font-medium text-white bg-emerald-700 hover:bg-emerald-800 inline-flex items-center gap-2 transition-colors">
+          <button onClick={() => setImportOpen(true)} className="h-11 px-4 rounded-md font-medium text-white bg-blue-800 hover:bg-blue-900 inline-flex items-center gap-2 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" className="w-4 h-4" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
             </svg>
-            Excelダウンロード
+            Excelから取り込む
           </button>
           <button onClick={() => { load(password); if (tab === 'failed') loadFailedLogs(); }} className="btn-secondary">再読込</button>
         </div>
       </div>
+
+      {importOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-start justify-center p-4 z-50 overflow-y-auto" onClick={(e) => { if (e.target === e.currentTarget) setImportOpen(false); }}>
+          <div className="bg-white rounded-lg max-w-xl w-full my-8 shadow-xl">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900">Excel から取り込む</h2>
+              <button onClick={() => setImportOpen(false)} className="text-slate-500 hover:text-slate-900 text-xl leading-none px-2">×</button>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <p className="text-xs text-slate-500 leading-relaxed">
+                メール・郵送で受け取った Excel（顧問先リスト）を取り込みます。<br />
+                ※ お客様にはサンクスメールは送信されません（管理者の内部登録）
+              </p>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-800 mb-2">
+                  受領経路<span className="badge-required">必須</span>
+                </label>
+                <div className="flex gap-2">
+                  {([
+                    { v: 'email' as const, label: 'メールで受領' },
+                    { v: 'paper' as const, label: '紙で受領' },
+                  ]).map((opt) => {
+                    const selected = importMeta.submissionMethod === opt.v;
+                    return (
+                      <button
+                        key={opt.v}
+                        type="button"
+                        onClick={() => setImportMeta({ ...importMeta, submissionMethod: opt.v })}
+                        className={
+                          'h-11 px-4 rounded-md border-2 text-sm transition-colors ' +
+                          (selected
+                            ? 'border-blue-800 bg-blue-50 text-blue-900 font-semibold'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300')
+                        }
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-800 mb-2">
+                  会計事務所名<span className="badge-optional">任意</span>
+                </label>
+                <input
+                  type="text"
+                  className="input-base"
+                  value={importMeta.applicantOfficeName}
+                  onChange={(e) => setImportMeta({ ...importMeta, applicantOfficeName: e.target.value })}
+                  placeholder="例）○○会計事務所"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-800 mb-2">
+                    申込担当者名<span className="badge-required">必須</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input-base"
+                    value={importMeta.applicantName}
+                    onChange={(e) => setImportMeta({ ...importMeta, applicantName: e.target.value })}
+                    placeholder="例）山田 太郎"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-800 mb-2">
+                    お電話番号<span className="badge-required">必須</span>
+                  </label>
+                  <input
+                    type="tel"
+                    className="input-base"
+                    value={importMeta.applicantPhone}
+                    onChange={(e) => setImportMeta({ ...importMeta, applicantPhone: e.target.value })}
+                    placeholder="例）03-1234-5678"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-800 mb-2">
+                  メールアドレス<span className="badge-required">必須</span>
+                </label>
+                <input
+                  type="email"
+                  className="input-base"
+                  value={importMeta.applicantEmail}
+                  onChange={(e) => setImportMeta({ ...importMeta, applicantEmail: e.target.value })}
+                  placeholder="例）taro@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-800 mb-2">
+                  ご依頼内容<span className="badge-required">必須</span>
+                  <span className="ml-2 text-xs font-normal text-slate-500">（取り込む全顧問先に一括適用）</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className={'flex items-center gap-2 px-3 h-11 rounded-md border-2 cursor-pointer transition-colors ' + (importMeta.needsNendoKoshin ? 'border-blue-800 bg-blue-50 text-blue-900' : 'border-slate-200 bg-white text-slate-700')}>
+                    <input
+                      type="checkbox"
+                      checked={importMeta.needsNendoKoshin}
+                      onChange={(e) => setImportMeta({ ...importMeta, needsNendoKoshin: e.target.checked })}
+                      className="h-4 w-4 accent-blue-800"
+                    />
+                    <span className="text-sm font-medium">年度更新</span>
+                  </label>
+                  <label className={'flex items-center gap-2 px-3 h-11 rounded-md border-2 cursor-pointer transition-colors ' + (importMeta.needsSantei ? 'border-blue-800 bg-blue-50 text-blue-900' : 'border-slate-200 bg-white text-slate-700')}>
+                    <input
+                      type="checkbox"
+                      checked={importMeta.needsSantei}
+                      onChange={(e) => setImportMeta({ ...importMeta, needsSantei: e.target.checked })}
+                      className="h-4 w-4 accent-blue-800"
+                    />
+                    <span className="text-sm font-medium">算定基礎届</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-800 mb-2">
+                  Excelファイル<span className="badge-required">必須</span>
+                </label>
+                <input
+                  type="file"
+                  accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                  onChange={(e) => setImportFile(e.target.files?.[0] ?? null)}
+                  className="block w-full text-sm text-slate-700 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-800 hover:file:bg-blue-200"
+                />
+                {importFile && (
+                  <p className="text-xs text-slate-500 mt-1.5">選択中: {importFile.name} ({(importFile.size / 1024).toFixed(1)}KB)</p>
+                )}
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-200 flex justify-end gap-2">
+              <button onClick={() => setImportOpen(false)} className="btn-secondary" disabled={importSubmitting}>キャンセル</button>
+              <button onClick={submitImport} className="btn-primary" disabled={importSubmitting}>
+                {importSubmitting ? '登録中…' : '登録する'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mb-5 flex gap-1 border-b border-slate-200">
         <button
