@@ -209,6 +209,7 @@ export default function NendosanteiForm() {
       const payload = {
         idempotencyKey: idempotencyKeyRef.current,
         submissionMethod: 'form' as const,
+        formType: 'firm' as const,
         applicantOfficeName: applicantOfficeName.trim(),
         applicantName: applicantName.trim(),
         applicantEmail: applicantEmail.trim(),

@@ -48,6 +48,7 @@ export const contactSchema = z
 export const applicationSchema = z.object({
   idempotencyKey: z.string().trim().min(8).max(64).optional(),
   submissionMethod: z.enum(['paper', 'email', 'form']),
+  formType: z.enum(['firm', 'sme']).optional().default('firm'),
   applicantOfficeName: z.string().trim().max(200).optional().default(''),
   applicantName: z.string().trim().min(1, 'ご担当者名を入力してください').max(100),
   applicantEmail: z.string().trim().regex(EMAIL_REGEX, 'メールアドレスの形式が正しくありません'),

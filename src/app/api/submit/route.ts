@@ -78,6 +78,7 @@ export async function POST(req: NextRequest) {
       .from('applications')
       .insert({
         submission_method: input.submissionMethod,
+        form_type: input.formType,
         applicant_office_name: input.applicantOfficeName || null,
         applicant_name: input.applicantName,
         applicant_email: input.applicantEmail,

@@ -19,16 +19,12 @@ export async function GET(req: NextRequest) {
   if (!limit.ok) {
     return NextResponse.json({ error: 'リクエストが多すぎます。しばらくしてからお試しください' }, { status: 429 });
   }
-  const pw = req.headers.get('x-admin-password') ?? '';
-  const expected = getEnv('ADMIN_PASSWORD') ?? '';
-  if (!expected || !safeEqual(pw, expected)) {
-    return NextResponse.json({ error: '認証に失敗しました' }, { status: 401 });
-  }
+  // Auth is enforced by middleware (cookie session)
   const supabase = getServiceClient();
   const { data, error } = await supabase
     .from('applications')
     .select(`
-      id, submission_method, applicant_office_name, applicant_name,
+      id, submission_method, form_type, applicant_office_name, applicant_name,
       applicant_email, applicant_phone, total_contacts, status, created_at,
       application_contacts (
         id, row_index, company_name, company_name_kana, employee_count,
@@ -64,6 +60,7 @@ export async function GET(req: NextRequest) {
     const revenue = serviceCount * PRICE_PER_SERVICE;
     return {
       ...a,
+      form_type: a.form_type ?? 'firm',
       application_contacts: contacts,
       nendo_count: nendoCount,
       santei_count: santeiCount,
@@ -72,23 +69,33 @@ export async function GET(req: NextRequest) {
     };
   });
 
-  const totalOrders = applications.length;
-  const totalContacts = applications.reduce((sum, a) => sum + (a.total_contacts ?? 0), 0);
-  const totalNendo = applications.reduce((sum, a) => sum + a.nendo_count, 0);
-  const totalSantei = applications.reduce((sum, a) => sum + a.santei_count, 0);
-  const totalServices = totalNendo + totalSantei;
-  const totalRevenue = totalServices * PRICE_PER_SERVICE;
+  function summarize(rows: typeof applications) {
+    const orders = rows.length;
+    const contacts = rows.reduce((sum, a) => sum + (a.total_contacts ?? 0), 0);
+    const nendo = rows.reduce((sum, a) => sum + a.nendo_count, 0);
+    const santei = rows.reduce((sum, a) => sum + a.santei_count, 0);
+    const services = nendo + santei;
+    return {
+      totalOrders: orders,
+      totalContacts: contacts,
+      totalNendo: nendo,
+      totalSantei: santei,
+      totalServices: services,
+      totalRevenue: services * PRICE_PER_SERVICE,
+      pricePerService: PRICE_PER_SERVICE,
+    };
+  }
+
+  const summary = summarize(applications);
+  const summaryFirm = summarize(applications.filter((a) => a.form_type === 'firm'));
+  const summarySme = summarize(applications.filter((a) => a.form_type === 'sme'));
 
   return NextResponse.json({
     applications,
-    summary: {
-      totalOrders,
-      totalContacts,
-      totalNendo,
-      totalSantei,
-      totalServices,
-      totalRevenue,
-      pricePerService: PRICE_PER_SERVICE,
+    summary,
+    summaryByFormType: {
+      firm: summaryFirm,
+      sme: summarySme,
     },
   });
 }

@@ -24,9 +24,12 @@ interface ContactRow {
   application_files?: FileRow[];
 }
 
+type FormType = 'firm' | 'sme';
+
 interface ApplicationRow {
   id: string;
   submission_method: 'paper' | 'email' | 'form';
+  form_type: FormType;
   applicant_office_name: string | null;
   applicant_name: string | null;
   applicant_email: string | null;
@@ -50,6 +53,16 @@ interface Summary {
   totalRevenue: number;
   pricePerService: number;
 }
+
+interface SummaryByFormType {
+  firm: Summary;
+  sme: Summary;
+}
+
+const FORM_TYPE_LABEL: Record<FormType, string> = {
+  firm: '会計事務所',
+  sme: '中小企業',
+};
 
 const SUBMISSION_LABEL: Record<ApplicationRow['submission_method'], string> = {
   paper: '紙で送付',
@@ -82,6 +95,8 @@ export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [rows, setRows] = useState<ApplicationRow[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [summaryByFormType, setSummaryByFormType] = useState<SummaryByFormType | null>(null);
+  const [formTypeFilter, setFormTypeFilter] = useState<'all' | FormType>('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -101,28 +116,50 @@ export default function AdminPage() {
   const [importSubmitting, setImportSubmitting] = useState(false);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem('nendosantei_admin_pw');
-    if (stored) {
-      setPassword(stored);
-      load(stored);
-    }
+    fetch('/api/admin/me')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.authenticated) {
+          setAuthed(true);
+          loadData();
+        }
+      })
+      .catch(() => {});
   }, []);
 
-  async function load(pw: string) {
+  async function handleLogin() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/admin/list', { headers: { 'x-admin-password': pw } });
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'admin', password }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || '認証に失敗しました');
+      setAuthed(true);
+      await loadData();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'エラー');
+      setAuthed(false);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadData() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/admin/list');
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || '取得失敗');
       setRows(json.applications);
       setSummary(json.summary);
-      setAuthed(true);
-      sessionStorage.setItem('nendosantei_admin_pw', pw);
+      setSummaryByFormType(json.summaryByFormType ?? null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'エラー');
-      setAuthed(false);
-      sessionStorage.removeItem('nendosantei_admin_pw');
     } finally {
       setLoading(false);
     }
@@ -139,9 +176,7 @@ export default function AdminPage() {
 
   async function loadFailedLogs() {
     try {
-      const res = await fetch('/api/admin/email-logs?status=failed', {
-        headers: { 'x-admin-password': password },
-      });
+      const res = await fetch('/api/admin/email-logs?status=failed');
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || '取得失敗');
       setFailedLogs(json.logs);
@@ -166,7 +201,6 @@ export default function AdminPage() {
       fd.append('file', importFile);
       const res = await fetch('/api/admin/import', {
         method: 'POST',
-        headers: { 'x-admin-password': password },
         body: fd,
       });
       const json = await res.json();
@@ -183,7 +217,7 @@ export default function AdminPage() {
         needsNendoKoshin: true,
         needsSantei: true,
       });
-      load(password);
+      loadData();
     } catch (e) {
       alert(e instanceof Error ? e.message : 'エラー');
     } finally {
@@ -193,9 +227,7 @@ export default function AdminPage() {
 
   async function downloadFile(fileId: string) {
     try {
-      const res = await fetch(`/api/admin/file?fileId=${encodeURIComponent(fileId)}`, {
-        headers: { 'x-admin-password': password },
-      });
+      const res = await fetch(`/api/admin/file?fileId=${encodeURIComponent(fileId)}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'DL失敗');
       window.open(json.url, '_blank', 'noopener');
@@ -214,9 +246,9 @@ export default function AdminPage() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="パスワード"
           className="input-base mb-3"
-          onKeyDown={(e) => { if (e.key === 'Enter') load(password); }}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleLogin(); }}
         />
-        <button onClick={() => load(password)} disabled={loading} className="btn-primary w-full">
+        <button onClick={handleLogin} disabled={loading} className="btn-primary w-full">
           {loading ? '...' : 'ログイン'}
         </button>
         {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
@@ -235,7 +267,7 @@ export default function AdminPage() {
             </svg>
             Excelから取り込む
           </button>
-          <button onClick={() => { load(password); if (tab === 'failed') loadFailedLogs(); }} className="btn-secondary">再読込</button>
+          <button onClick={() => { loadData(); if (tab === 'failed') loadFailedLogs(); }} className="btn-secondary">再読込</button>
         </div>
       </div>
 
@@ -437,15 +469,68 @@ export default function AdminPage() {
         </div>
       )}
 
+      {tab === 'orders' && summaryByFormType && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
+          {(['firm', 'sme'] as const).map((ft) => {
+            const s = summaryByFormType[ft];
+            const isFirm = ft === 'firm';
+            return (
+              <div
+                key={ft}
+                className={
+                  'rounded-lg border-2 p-4 ' +
+                  (isFirm ? 'border-blue-200 bg-blue-50/40' : 'border-emerald-200 bg-emerald-50/40')
+                }
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className={'text-sm font-bold ' + (isFirm ? 'text-blue-900' : 'text-emerald-900')}>
+                    {FORM_TYPE_LABEL[ft]}様向け
+                  </h2>
+                  <span className="text-xs text-slate-500">
+                    {isFirm ? '/ （複数顧問先）' : '/sme （自社1件）'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="rounded-md bg-white border border-slate-200 p-3">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">受注</p>
+                    <p className="text-lg font-semibold text-slate-900 tabular-nums">
+                      {formatJpy(s.totalOrders)}<span className="text-xs text-slate-500 font-normal ml-0.5">件</span>
+                    </p>
+                  </div>
+                  <div className="rounded-md bg-white border border-slate-200 p-3">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">年度更新</p>
+                    <p className="text-lg font-semibold text-slate-900 tabular-nums">
+                      {formatJpy(s.totalNendo)}<span className="text-xs text-slate-500 font-normal ml-0.5">件</span>
+                    </p>
+                  </div>
+                  <div className="rounded-md bg-white border border-slate-200 p-3">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">算定基礎届</p>
+                    <p className="text-lg font-semibold text-slate-900 tabular-nums">
+                      {formatJpy(s.totalSantei)}<span className="text-xs text-slate-500 font-normal ml-0.5">件</span>
+                    </p>
+                  </div>
+                  <div className={'rounded-md border p-3 ' + (isFirm ? 'bg-blue-100 border-blue-300' : 'bg-emerald-100 border-emerald-300')}>
+                    <p className={'text-[10px] uppercase tracking-wider mb-1 ' + (isFirm ? 'text-blue-700' : 'text-emerald-700')}>売上</p>
+                    <p className={'text-lg font-semibold tabular-nums ' + (isFirm ? 'text-blue-900' : 'text-emerald-900')}>
+                      ¥{formatJpy(s.totalRevenue)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {tab === 'orders' && summary && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <div className="rounded-lg bg-white border border-slate-200 p-5">
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1.5">受注総数</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1.5">合計受注</p>
             <p className="text-2xl font-semibold text-slate-900 tabular-nums">
               {formatJpy(summary.totalOrders)}
               <span className="text-sm text-slate-500 font-normal ml-1">件</span>
             </p>
-            <p className="text-xs text-slate-400 mt-1">会計事務所</p>
+            <p className="text-xs text-slate-400 mt-1">両フォーム合算</p>
           </div>
           <div className="rounded-lg bg-white border border-slate-200 p-5">
             <p className="text-xs text-slate-500 uppercase tracking-wider mb-1.5">年度更新</p>
@@ -476,12 +561,40 @@ export default function AdminPage() {
       )}
 
       {tab === 'orders' && (
+      <>
+      <div className="mb-3 flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-slate-500">表示フィルタ:</span>
+        {([
+          { v: 'all' as const, label: 'すべて', cls: 'border-slate-700 bg-slate-700 text-white' },
+          { v: 'firm' as const, label: '会計事務所のみ', cls: 'border-blue-700 bg-blue-700 text-white' },
+          { v: 'sme' as const, label: '中小企業のみ', cls: 'border-emerald-700 bg-emerald-700 text-white' },
+        ]).map((opt) => {
+          const selected = formTypeFilter === opt.v;
+          return (
+            <button
+              key={opt.v}
+              type="button"
+              onClick={() => setFormTypeFilter(opt.v)}
+              className={
+                'h-8 px-3 rounded-md border-2 text-xs font-semibold transition-colors ' +
+                (selected ? opt.cls : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400')
+              }
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+        <span className="ml-auto text-xs text-slate-500 tabular-nums">
+          {formatJpy(rows.filter((r) => formTypeFilter === 'all' || r.form_type === formTypeFilter).length)} 件表示中
+        </span>
+      </div>
       <div className="overflow-x-auto bg-white rounded-lg border border-slate-200">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-50 text-slate-700">
             <tr>
               <th className="text-left px-3 py-2.5 font-medium">受付日</th>
-              <th className="text-left px-3 py-2.5 font-medium">会計事務所名</th>
+              <th className="text-left px-3 py-2.5 font-medium">種別</th>
+              <th className="text-left px-3 py-2.5 font-medium">会計事務所名／会社名</th>
               <th className="text-left px-3 py-2.5 font-medium">ご担当者</th>
               <th className="text-left px-3 py-2.5 font-medium">申込種別</th>
               <th className="text-left px-3 py-2.5 font-medium">紐づく会社名</th>
@@ -492,7 +605,7 @@ export default function AdminPage() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => {
+            {rows.filter((r) => formTypeFilter === 'all' || r.form_type === formTypeFilter).map((r) => {
               const isExpanded = expanded.has(r.id);
               const contacts = r.application_contacts ?? [];
               return (
@@ -502,8 +615,20 @@ export default function AdminPage() {
                     <br />
                     <span className="text-slate-400">{new Date(r.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</span>
                   </td>
+                  <td className="px-3 py-2.5 whitespace-nowrap">
+                    <span className={
+                      'inline-block px-2 py-0.5 rounded text-xs font-semibold ' +
+                      (r.form_type === 'sme'
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                        : 'bg-blue-50 text-blue-800 border border-blue-200')
+                    }>
+                      {FORM_TYPE_LABEL[r.form_type ?? 'firm']}
+                    </span>
+                  </td>
                   <td className="px-3 py-2.5 text-slate-900 font-medium">
-                    {r.applicant_office_name || <span className="text-slate-400 font-normal">（未入力）</span>}
+                    {r.form_type === 'sme'
+                      ? (r.application_contacts?.[0]?.company_name || <span className="text-slate-400 font-normal">（未入力）</span>)
+                      : (r.applicant_office_name || <span className="text-slate-400 font-normal">（未入力）</span>)}
                   </td>
                   <td className="px-3 py-2.5 text-slate-700">
                     {r.applicant_name ?? '-'}
@@ -608,14 +733,17 @@ export default function AdminPage() {
                 </tr>
               );
             })}
-            {rows.length === 0 && (
+            {rows.filter((r) => formTypeFilter === 'all' || r.form_type === formTypeFilter).length === 0 && (
               <tr>
-                <td colSpan={9} className="text-center py-12 text-slate-500">受注はまだありません</td>
+                <td colSpan={10} className="text-center py-12 text-slate-500">
+                  {rows.length === 0 ? '受注はまだありません' : '該当する受注がありません'}
+                </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+      </>
       )}
 
       <p className="mt-4 text-xs text-slate-400">
