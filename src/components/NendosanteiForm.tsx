@@ -2,8 +2,9 @@
 
 import { useMemo, useState, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { ContactRow, SubmissionMethod } from '@/lib/types';
+import type { ContactRow } from '@/lib/types';
 import { isAfterDeadline, isFormStopped, EMAIL_REGEX, PHONE_REGEX } from '@/lib/validation';
 import { parseContactsXlsx, buildContactRowFromParsed } from '@/lib/import-xlsx';
 import ContactCard from './ContactCard';
@@ -34,7 +35,6 @@ function emptyContact(rowIndex: number): ContactRow {
 
 export default function NendosanteiForm() {
   const router = useRouter();
-  const [submissionMethod, setSubmissionMethod] = useState<SubmissionMethod | null>(null);
   const [applicantOfficeName, setApplicantOfficeName] = useState('');
   const [applicantName, setApplicantName] = useState('');
   const [applicantEmail, setApplicantEmail] = useState('');
@@ -134,7 +134,6 @@ export default function NendosanteiForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setGlobalError(null);
-    if (submissionMethod !== 'form') return;
     if (!validate()) {
       setGlobalError('入力内容にエラーがあります。赤字の項目をご確認ください。');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -362,110 +361,21 @@ export default function NendosanteiForm() {
           <p className="text-sm text-red-700 -mt-3 mb-3 ml-1">{errors.deadlineAcknowledged}</p>
         )}
 
-        {/* STEP 1: 提出方法選択 */}
-        <section className="section-card" aria-labelledby="submission-heading">
-          <div className="section-header">
-            <span className="step-badge">
-              <span className="step-badge-label">STEP</span>
-              <span className="step-badge-number">1</span>
-            </span>
-            <div>
-              <h2 id="submission-heading" className="text-base font-bold text-slate-900">
-                提出方法を選択<span className="badge-required">必須</span>
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">ご希望の提出方法をお選びください</p>
-            </div>
-          </div>
-          <div className="section-body">
-            <div role="radiogroup" aria-labelledby="submission-heading" className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {([
-                { v: 'paper' as const, label: '紙で送付', desc: '郵送・FAX' },
-                { v: 'email' as const, label: 'メールで送信', desc: '添付で送る' },
-                { v: 'form' as const, label: 'フォームから入力', desc: 'このフォームで完結' },
-              ]).map((opt) => {
-                const selected = submissionMethod === opt.v;
-                return (
-                  <button
-                    key={opt.v}
-                    type="button"
-                    role="radio"
-                    aria-checked={selected}
-                    onClick={() => setSubmissionMethod(opt.v)}
-                    className={
-                      'h-auto min-h-[72px] px-4 py-3 rounded-lg border-2 transition-all text-center ' +
-                      (selected
-                        ? 'border-blue-800 bg-blue-50 text-blue-900 shadow-sm'
-                        : 'border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/30')
-                    }
-                  >
-                    <span className="block text-sm font-semibold">{opt.label}</span>
-                    <span className="block text-[11px] mt-0.5 opacity-70">{opt.desc}</span>
-                  </button>
-                );
-              })}
-            </div>
-            {!submissionMethod && (
-              <p className="mt-3 text-xs text-slate-500 text-center">
-                上の3つから、ご希望の提出方法をお選びください
-              </p>
-            )}
-          </div>
-        </section>
+        {/* SME向けへの導線 */}
+        <div className="rounded-lg bg-slate-50 border border-slate-200 p-3 text-sm text-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <span>会計事務所様ではなく、自社のご依頼の場合は</span>
+          <Link href="/sme" className="text-blue-800 font-semibold underline underline-offset-4 hover:text-blue-900">
+            一般中小企業様向けフォームへ →
+          </Link>
+        </div>
 
-        {/* 紙 */}
-        {submissionMethod === 'paper' && (
-          <section className="section-card">
-            <div className="section-header">
-              <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border-2 border-slate-400 text-slate-600 text-[10px] font-bold">
-                送付先
-              </span>
-              <h3 className="text-base font-bold text-slate-900">郵送先のご案内</h3>
-            </div>
-            <div className="section-body">
-              <div className="rounded-lg bg-slate-50 border border-slate-200 p-4 text-sm text-slate-800 leading-relaxed space-y-1.5">
-                <p className="font-semibold text-slate-900">スポット社労士くん社会保険労務士法人　油井 宛</p>
-                <p>〒102-0075 東京都千代田区三番町3-8 泉館三番町6F</p>
-                <p>TEL: <a href="tel:0362726183" className="text-blue-700 underline underline-offset-4 decoration-blue-300 hover:decoration-blue-900 font-medium">03-6272-6183</a></p>
-              </div>
-              <p className="mt-4 text-sm text-slate-600">
-                算定基礎届・労働保険料申告書を上記住所までお送りください。
-              </p>
-            </div>
-          </section>
-        )}
-
-        {/* メール */}
-        {submissionMethod === 'email' && (
-          <section className="section-card">
-            <div className="section-header">
-              <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border-2 border-slate-400 text-slate-600 text-[10px] font-bold">
-                送信先
-              </span>
-              <h3 className="text-base font-bold text-slate-900">メール送信先のご案内</h3>
-            </div>
-            <div className="section-body">
-              <div className="rounded-lg bg-slate-50 border border-slate-200 p-4">
-                <p className="text-lg sm:text-xl text-slate-900 font-semibold">
-                  <a href="mailto:yui@100ten.co.jp" className="text-blue-700 underline underline-offset-4 decoration-blue-300 hover:decoration-blue-900">yui@100ten.co.jp</a>
-                </p>
-              </div>
-              <p className="mt-4 text-sm text-slate-600 leading-relaxed">
-                算定基礎届・労働保険料申告書を上記アドレスまでメール送信してください。<br />
-                件名に<span className="font-semibold text-slate-900">「年度更新・算定基礎届のご依頼」</span>とご記入ください。
-              </p>
-            </div>
-          </section>
-        )}
-
-        {/* フォーム */}
-        {submissionMethod === 'form' && (
-          <form onSubmit={handleSubmit} noValidate className="space-y-6">
-            {/* STEP 2: ご担当者様情報 */}
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
+            {/* STEP 1: ご担当者様情報 */}
             <section className="section-card" aria-labelledby="applicant-heading">
               <div className="section-header">
                 <span className="step-badge">
                   <span className="step-badge-label">STEP</span>
-                  <span className="step-badge-number">2</span>
+                  <span className="step-badge-number">1</span>
                 </span>
                 <div>
                   <h3 id="applicant-heading" className="text-base font-bold text-slate-900">
@@ -508,12 +418,12 @@ export default function NendosanteiForm() {
               </div>
             </section>
 
-            {/* STEP 3: 顧問先情報 */}
+            {/* STEP 2: 顧問先情報 */}
             <section className="section-card" aria-labelledby="contacts-heading">
               <div className="section-header">
                 <span className="step-badge">
                   <span className="step-badge-label">STEP</span>
-                  <span className="step-badge-number">3</span>
+                  <span className="step-badge-number">2</span>
                 </span>
                 <div className="flex-1">
                   <h3 id="contacts-heading" className="text-base font-bold text-slate-900">
@@ -573,12 +483,12 @@ export default function NendosanteiForm() {
 
             <FreeeInviteGuide />
 
-            {/* STEP 4: 同意・送信 */}
+            {/* STEP 3: 同意・送信 */}
             <section className="section-card">
               <div className="section-header">
                 <span className="step-badge">
                   <span className="step-badge-label">STEP</span>
-                  <span className="step-badge-number">4</span>
+                  <span className="step-badge-number">3</span>
                 </span>
                 <div>
                   <h3 className="text-base font-bold text-slate-900">
@@ -635,7 +545,6 @@ export default function NendosanteiForm() {
               </p>
             </div>
           </form>
-        )}
       </main>
       <Footer />
     </div>
