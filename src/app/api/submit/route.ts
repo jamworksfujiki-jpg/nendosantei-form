@@ -166,8 +166,11 @@ export async function POST(req: NextRequest) {
     // メール送信
     const adminTo = getEnv('ADMIN_NOTIFY_EMAIL') || 'info@spot-s.jp';
     const adminCcRaw = getEnv('ADMIN_NOTIFY_CC');
-    const adminCc = adminCcRaw ? [adminCcRaw] : undefined;
-    const fallbackTo = getEnv('ADMIN_NOTIFY_CC') || 'jamworksfujiki@gmail.com';
+    const adminCcList = adminCcRaw
+      ? adminCcRaw.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+    const adminCc = adminCcList.length > 0 ? adminCcList : undefined;
+    const fallbackTo = adminCcList[0] || 'jamworksfujiki@gmail.com';
 
     const resend = getResend();
 
@@ -268,7 +271,10 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('submit error', err);
     try {
-      const fallbackTo = getEnv('ADMIN_NOTIFY_CC') || 'jamworksfujiki@gmail.com';
+      const fallbackCcRaw = getEnv('ADMIN_NOTIFY_CC');
+      const fallbackTo =
+        (fallbackCcRaw ? fallbackCcRaw.split(',').map((s) => s.trim()).filter(Boolean)[0] : null) ||
+        'jamworksfujiki@gmail.com';
       const resend = getResend();
       const detail = err instanceof Error ? `${err.message}\n\n${err.stack ?? ''}` : String(err);
       await resend.emails.send({
