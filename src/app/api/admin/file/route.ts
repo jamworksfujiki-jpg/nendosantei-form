@@ -19,11 +19,7 @@ export async function GET(req: NextRequest) {
   if (!limit.ok) {
     return NextResponse.json({ error: 'リクエストが多すぎます。しばらくしてからお試しください' }, { status: 429 });
   }
-  const pw = req.headers.get('x-admin-password') ?? '';
-  const expected = getEnv('ADMIN_PASSWORD') ?? '';
-  if (!expected || !safeEqual(pw, expected)) {
-    return NextResponse.json({ error: '認証に失敗しました' }, { status: 401 });
-  }
+  // Auth is enforced by middleware (cookie session)
 
   const fileId = req.nextUrl.searchParams.get('fileId');
   if (!fileId) return NextResponse.json({ error: 'fileId required' }, { status: 400 });

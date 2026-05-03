@@ -31,11 +31,7 @@ export async function POST(req: NextRequest) {
   if (!limit.ok) {
     return NextResponse.json({ error: 'リクエストが多すぎます' }, { status: 429 });
   }
-  const pw = req.headers.get('x-admin-password') ?? '';
-  const expected = getEnv('ADMIN_PASSWORD') ?? '';
-  if (!expected || !safeEqual(pw, expected)) {
-    return NextResponse.json({ error: '認証に失敗しました' }, { status: 401 });
-  }
+  // Auth is enforced by middleware (cookie session)
 
   try {
     const formData = await req.formData();
