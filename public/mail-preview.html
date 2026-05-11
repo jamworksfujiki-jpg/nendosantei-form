@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>年度更新・算定基礎届 メルマガ プレビュー</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #f0f3f7;
+    --primary: #1f6feb;
+    --primary-tint: #e7f0ff;
+    --on-primary: #ffffff;
+    --text: #1b1f24;
+    --text-sub: #545b66;
+    --border: #d8dde4;
+    --accent: #d97706;
+    --success: #16a34a;
+    --shadow: 0 1px 2px rgba(20, 24, 31, 0.06), 0 4px 14px rgba(20, 24, 31, 0.05);
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Segoe UI", sans-serif;
+    line-height: 1.6;
+  }
+  header.page {
+    background: linear-gradient(120deg, #1f6feb 0%, #1450b8 100%);
+    color: #fff;
+    padding: 28px 24px 24px;
+  }
+  header.page h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; letter-spacing: 0.01em; }
+  header.page p { margin: 0; font-size: 13px; opacity: 0.9; }
+  .container { max-width: 920px; margin: 0 auto; padding: 24px 16px 80px; }
+  nav.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 20px;
+    background: var(--surface);
+    padding: 8px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 8px;
+    z-index: 10;
+  }
+  nav.tabs button {
+    flex: 1 1 auto;
+    min-width: 140px;
+    padding: 10px 14px;
+    background: transparent;
+    color: var(--text-sub);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  nav.tabs button:hover { background: var(--surface-2); }
+  nav.tabs button.active {
+    background: var(--primary);
+    color: var(--on-primary);
+    box-shadow: 0 2px 6px rgba(31, 111, 235, 0.3);
+  }
+  section.mail {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  section.mail.visible { display: block; }
+  .mail-head {
+    padding: 18px 22px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    background: var(--primary-tint);
+    color: var(--primary);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .badge.accent { background: #fff3e0; color: var(--accent); }
+  .mail-head h2 { margin: 10px 0 4px; font-size: 17px; font-weight: 600; }
+  .mail-head .meta { font-size: 12px; color: var(--text-sub); }
+  .subject {
+    margin: 14px 0 0;
+    padding: 10px 14px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 22px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+  }
+  .btn {
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #fff;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: var(--primary-tint); }
+  .btn.primary { background: var(--primary); color: #fff; }
+  .btn.primary:hover { background: #1450b8; }
+  .btn.copied { background: var(--success); border-color: var(--success); color: #fff; }
+  pre.body {
+    margin: 0;
+    padding: 22px;
+    font-family: "MS Gothic", "Yu Gothic", monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: var(--text);
+    background: #fff;
+  }
+  footer.note {
+    margin-top: 24px;
+    padding: 16px 18px;
+    background: #fff8e1;
+    border: 1px solid #f5d77b;
+    border-radius: var(--radius);
+    font-size: 12px;
+    color: #6c4f00;
+  }
+  footer.note strong { color: #4a3500; }
+  footer.note ul { margin: 8px 0 0; padding-left: 18px; }
+  @media (max-width: 640px) {
+    .container { padding: 16px 12px 60px; }
+    nav.tabs button { min-width: auto; flex: 1 1 calc(50% - 4px); font-size: 12px; padding: 9px 8px; }
+    pre.body { padding: 14px; font-size: 12px; }
+    header.page { padding: 22px 16px; }
+    header.page h1 { font-size: 18px; }
+  }
+  @media print {
+    nav.tabs, .toolbar, header.page { display: none; }
+    section.mail { display: block !important; page-break-after: always; box-shadow: none; border: none; }
+    body { background: #fff; }
+  }
+</style>
+</head>
+<body>
+<header class="page">
+  <h1>年度更新・算定基礎届 メルマガ プレビュー</h1>
+  <p>税理士 → 顧問先向け メール文面サンプル（4通）／2026 年版</p>
+</header>
+
+<div class="container">
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-target="m3">③ 初回事前案内</button>
+    <button class="tab-btn" data-target="m1a">①-A 5/11 年度更新</button>
+    <button class="tab-btn" data-target="m1b">①-B 6/1 算定基礎届</button>
+    <button class="tab-btn" data-target="m2">② freee特価版</button>
+    <button class="tab-btn" data-target="all">全件表示</button>
+  </nav>
+
+  <section id="m3" class="mail visible">
+    <div class="mail-head">
+      <span class="badge">③ 初回事前案内</span>
+      <h2>労働保険 年度更新・社会保険 算定基礎届のご案内（事前告知）</h2>
+      <div class="meta">配信タイミング：5月上旬／対象：全顧問先</div>
+      <div class="subject">件名：【重要】労働保険 年度更新・社会保険 算定基礎届のご案内（手続きは7/10まで）</div>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary copy-btn" data-source="m3-body">本文をコピー</button>
+    </div>
+    <pre class="body" id="m3-body">────────────────────────────────────────
+○○株式会社 ご担当者様
+
+いつも大変お世話になっております。
+○○会計事務所の○○でございます。
+
+年に一度の社会保険・労働保険関係の更新の時期が
+近づいてまいりましたので、事前にご案内いたします。
+
+5月下旬〜6月にかけて、年金機構・労働局から
+緑／茶色の封筒が貴社へ届きます。
+いずれも7月10日（金）までに手続きが必要です。
+
+══════════════════════════════════════
+◆ 労働保険「年度更新」
+　 …昨年度の労働保険料の精算・今年度の概算申告手続き
+◆ 社会保険「算定基礎届」
+　 …今年度の社会保険料を決めるための届出
+══════════════════════════════════════
+
+なお、税理士が貴社に代わって上記の手続きを行うことは
+社会保険労務士法 第27条により認められておりません。
+当事務所では、提携社会保険労務士法人
+「スポット社労士くん」をご紹介しております。
+
+■ 配信スケジュール（予定）
+　・5/11（月）：労働保険 年度更新 受付開始のご案内
+　・6/ 1（月）：社会保険 算定基礎届 受付開始のご案内
+
+それぞれの受付開始日に、お申込フォームのURLを
+改めてお送りいたします。
+
+ご自身で対応されるご予定の場合も、
+書類が届きましたら早めの着手をおすすめいたします。
+ご不明な点は当事務所までお気軽にご相談ください。
+
+今後とも何卒宜しくお願い致します。
+
+―――――――――――――――――――――――
+○○会計事務所
+担当：○○
+TEL：000-0000-0000　Email：xxx@xxx.xx
+―――――――――――――――――――――――</pre>
+  </section>
+
+  <section id="m1a" class="mail">
+    <div class="mail-head">
+      <span class="badge">①-A 5/11配信</span>
+      <h2>労働保険 年度更新 受付開始のご案内（顧問先 通常版）</h2>
+      <div class="meta">配信タイミング：5/11（月）／対象：freee非利用の顧問先</div>
+      <div class="subject">件名：【受付開始】労働保険 年度更新のお申込みを開始しました（〆切7/10）</div>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary copy-btn" data-source="m1a-body">本文をコピー</button>
+    </div>
+    <pre class="body" id="m1a-body">────────────────────────────────────────
+○○株式会社 ご担当者様
+
+いつもお世話になっております。○○会計事務所です。
+
+本日5月11日（月）より、提携先である
+スポット社労士くん社会保険労務士法人にて
+労働保険「年度更新」の受付が開始されました。
+
+労働局から届く緑の封筒（申告書）と賃金台帳をご用意のうえ、
+下記フォームよりお早めにお申込みください。
+
+══════════════════════════════════════
+■ お申込みフォーム（顧問先様 専用ご案内枠）
+　 https://app.spot-s.or.jp/home
+　 ※フォーム内で「○○会計事務所のご紹介」と必ずご記入ください
+══════════════════════════════════════
+
+■ ご料金（税込）
+　・年度更新：23,100円（10名まで）
+　 ※11名以降は10名ごとに 5,500円 加算
+
+■ お申込み〜申告までの3ステップ
+　1. ポータルにログインし「年度更新」メニューを選択
+　2. 必要書類（労働局からの申告書・賃金台帳等）をアップロード
+　3. お支払い（クレジットカード推奨）→ 受付完了
+　 　※クレカ＝即時決済・領収書自動発行
+　 　※銀行振込もご利用可（入金確認まで時間を要します）
+
+■ 申告期限
+　2026年7月10日（金）
+　※期限間近は混雑します。お早めのお申込みをお願いいたします。
+
+なお、税理士が貴社に代わって本手続きを行うことは
+社会保険労務士法 第27条により認められておりません。
+本件はスポット社労士くん様に直接お申込みいただく流れとなります。
+
+ご不明な点は当事務所までお気軽にご連絡ください。
+スポット社労士くん様へ直接お問合せいただいても結構です。
+（その際は「○○会計事務所からの紹介」とお伝えください）
+
+―――――――――――――――――――――――
+○○会計事務所
+担当：○○　TEL：000-0000-0000
+
+【ご紹介先】スポット社労士くん社会保険労務士法人
+HP　 ：https://spot-s.or.jp/
+TEL 　：03-6272-6183
+Email ：info@spot-s.jp
+〒102-0075 東京都千代田区三番町3-8 泉館三番町ビル6階
+―――――――――――――――――――――――</pre>
+  </section>
+
+  <section id="m1b" class="mail">
+    <div class="mail-head">
+      <span class="badge">①-B 6/1配信</span>
+      <h2>社会保険 算定基礎届 受付開始のご案内（顧問先 通常版）</h2>
+      <div class="meta">配信タイミング：6/1（月）／対象：freee非利用の顧問先</div>
+      <div class="subject">件名：【受付開始】社会保険 算定基礎届のお申込みを開始しました（〆切7/10）</div>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary copy-btn" data-source="m1b-body">本文をコピー</button>
+    </div>
+    <pre class="body" id="m1b-body">────────────────────────────────────────
+○○株式会社 ご担当者様
+
+いつもお世話になっております。○○会計事務所です。
+
+本日6月1日（月）より、提携先である
+スポット社労士くん社会保険労務士法人にて
+社会保険「算定基礎届」の受付が開始されました。
+
+年金事務所（または健康保険組合）から届く茶色の封筒
+（算定基礎届）と賃金台帳をご用意のうえ、
+下記フォームよりお早めにお申込みください。
+
+══════════════════════════════════════
+■ お申込みフォーム（顧問先様 専用ご案内枠）
+　 https://app.spot-s.or.jp/home
+　 ※フォーム内で「○○会計事務所のご紹介」と必ずご記入ください
+══════════════════════════════════════
+
+■ ご料金（税込）
+　・算定基礎届：23,100円（10名まで）
+　 ※11名以降は10名ごとに 5,500円 加算
+
+■ お申込み〜届出までの3ステップ
+　1. ポータルにログインし「算定基礎届」メニューを選択
+　2. 必要書類（年金事務所等からの申告書・賃金台帳等）をアップロード
+　3. お支払い（クレジットカード推奨）→ 受付完了
+　 　※クレカ＝即時決済・領収書自動発行
+　 　※銀行振込もご利用可（入金確認まで時間を要します）
+
+■ 提出期限
+　2026年7月10日（金）
+　※期限間近は混雑します。お早めのお申込みをお願いいたします。
+
+なお、税理士が貴社に代わって本手続きを行うことは
+社会保険労務士法 第27条により認められておりません。
+本件はスポット社労士くん様に直接お申込みいただく流れとなります。
+
+ご不明な点は当事務所までお気軽にご連絡ください。
+スポット社労士くん様へ直接お問合せいただいても結構です。
+（その際は「○○会計事務所からの紹介」とお伝えください）
+
+―――――――――――――――――――――――
+○○会計事務所
+担当：○○　TEL：000-0000-0000
+
+【ご紹介先】スポット社労士くん社会保険労務士法人
+HP　 ：https://spot-s.or.jp/
+TEL 　：03-6272-6183
+Email ：info@spot-s.jp
+〒102-0075 東京都千代田区三番町3-8 泉館三番町ビル6階
+―――――――――――――――――――――――</pre>
+  </section>
+
+  <section id="m2" class="mail">
+    <div class="mail-head">
+      <span class="badge accent">② freee特価版</span>
+      <h2>freee人事労務ユーザー向け 特別ご案内（年度更新・算定 兼用）</h2>
+      <div class="meta">配信タイミング：5/11 or 6/1／対象：freee人事労務ご利用の顧問先</div>
+      <div class="subject">件名：【freee人事労務ご利用のお客様限定特価】年度更新・算定基礎届を9,900円でご依頼いただけます</div>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary copy-btn" data-source="m2-body">本文をコピー</button>
+    </div>
+    <pre class="body" id="m2-body">────────────────────────────────────────
+○○株式会社 ご担当者様
+
+いつもお世話になっております。○○会計事務所です。
+
+年に一度の社会保険・労働保険の更新時期が近づいてまいりました。
+5月末〜6月にかけて年金機構・労働局から緑／茶色の封筒が届き、
+いずれも 7月10日（金）までに手続きが必要となります。
+
+══════════════════════════════════════
+◆ 労働保険「年度更新」
+　 …昨年度の労働保険料の精算・今年度の概算申告手続き
+◆ 社会保険「算定基礎届」
+　 …今年度の社会保険料を決めるための届出
+══════════════════════════════════════
+
+※税理士が貴社に代わって上記手続きを代行する行為は、
+　社会保険労務士法 第27条により認められておりません。
+　自社対応が難しい場合は、当事務所提携の
+　「スポット社労士くん社会保険労務士法人」へスポットで
+　ご依頼いただけます。
+
+══════════════════════════════════════
+■ freee人事労務ユーザー限定価格（税込）
+　◆ 年度更新　：9,900円（30名まで）
+　◆ 算定基礎届：9,900円（30名まで）
+　※通常価格23,100円（10名まで・以降10名毎5,500円加算）と比べ、
+　 freee人事労務をご利用中の貴社は大幅に優遇されます。
+══════════════════════════════════════
+
+■ お申込みフォーム
+　 https://app.spot-s.or.jp/home
+　 ※フォーム内の備考欄に
+　 　「freee人事労務ユーザー／○○会計事務所のご紹介」
+　 　と必ずご記入ください（特別価格適用の条件です）
+
+■ 直接お問合せも可能です
+　（その際も「freee人事労務ユーザー／○○会計事務所からの紹介」と
+　　お伝えください）
+
+■ 申請の流れ（カンタン3ステップ）
+　1. 上記フォームからお申込み
+　2. 必要書類（緑／茶色封筒の申告書・賃金台帳）をアップロード
+　3. お支払い（クレジットカード推奨）→ 受付完了
+
+年に一度の重要な手続きですので、お早めのご対応を
+おすすめいたします。
+ご不明な点は当事務所までお気軽にご相談ください。
+
+今後とも何卒宜しくお願い致します。
+
+―――――――――――――――――――――――
+○○会計事務所
+担当：○○　TEL：000-0000-0000
+
+【ご紹介先】スポット社労士くん社会保険労務士法人
+HP　 ：https://spot-s.or.jp/
+TEL 　：03-6272-6183
+Email ：info@spot-s.jp
+〒102-0075 東京都千代田区三番町3-8 泉館三番町ビル6階
+―――――――――――――――――――――――</pre>
+  </section>
+
+  <footer class="note">
+    <strong>運用メモ</strong>
+    <ul>
+      <li>申込URL <code>https://app.spot-s.or.jp/home</code> は既存ポータル。会計事務所が一括代行発注する場合は <code>https://spot-s.or.jp/nendosantei-form-kaikei/</code> に差し替え可能。</li>
+      <li>freee特価の判別運用（フォーム備考欄の表記など）はスポット社労士くん側と要確認。</li>
+      <li>「社会保険労務士法 第27条」の注意書きは税理士コンプライアンス上の必須事項として4通すべてに記載。</li>
+      <li>○○会計事務所／担当者名／TEL／Email の差し込みは配信前に置換。</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab-btn');
+  const sections = document.querySelectorAll('section.mail');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.target;
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      sections.forEach(s => {
+        if (target === 'all' || s.id === target) {
+          s.classList.add('visible');
+        } else {
+          s.classList.remove('visible');
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const src = document.getElementById(btn.dataset.source);
+      if (!src) return;
+      try {
+        await navigator.clipboard.writeText(src.textContent);
+        const original = btn.textContent;
+        btn.textContent = '✓ コピーしました';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1800);
+      } catch (e) {
+        alert('コピーに失敗しました。手動で選択してください。');
+      }
+    });
+  });
+</script>
+</body>
+</html>
