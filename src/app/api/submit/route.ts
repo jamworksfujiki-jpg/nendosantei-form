@@ -268,6 +268,49 @@ export async function POST(req: NextRequest) {
       }).then(() => undefined, (err) => console.error('idempotency insert failed', err));
     }
 
+    // Google Sheets (GAS Webhook) に申込データを送信
+    const gasUrl = getEnv('GAS_WEBHOOK_URL');
+    if (gasUrl && applicationId) {
+      try {
+        const planInfo = (() => {
+          if (input.plan === 'standard') return { label: '21,000円ver', priceInclTax: 23100 };
+          if (input.plan === 'middle') return { label: '18,000円ver', priceInclTax: 19800 };
+          return { label: '9,900円ver', priceInclTax: 9900 };
+        })();
+        await fetch(gasUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            applicationId,
+            createdAt: new Date().toISOString(),
+            plan: input.plan,
+            planLabel: planInfo.label,
+            unitPrice: planInfo.priceInclTax,
+            submissionMethod: input.submissionMethod,
+            applicantOfficeName: input.applicantOfficeName ?? '',
+            applicantName: input.applicantName,
+            applicantEmail: input.applicantEmail,
+            applicantPhone: input.applicantPhone,
+            contacts: input.contacts.map((c) => ({
+              rowIndex: c.rowIndex,
+              companyName: c.companyName,
+              companyNameKana: c.companyNameKana ?? '',
+              employeeCount: c.employeeCount ?? null,
+              contactName: c.contactName,
+              phone: c.phone,
+              email: c.email,
+              freeeInvited: c.freeeInvited,
+              needsNendoKoshin: c.needsNendoKoshin,
+              needsSantei: c.needsSantei,
+              subtotal: ((c.needsNendoKoshin ? 1 : 0) + (c.needsSantei ? 1 : 0)) * planInfo.priceInclTax,
+            })),
+          }),
+        });
+      } catch (e) {
+        console.error('GAS webhook failed', e);
+      }
+    }
+
     return NextResponse.json({ success: true, id: applicationId });
   } catch (err) {
     console.error('submit error', err);

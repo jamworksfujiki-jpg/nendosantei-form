@@ -1,5 +1,5 @@
 import type { ApplicationInput } from './validation';
-import { PRICE_PER_SERVICE } from './validation';
+import { getPlan } from './plans';
 
 export const FROM_ADDRESS = 'スポット社労士くん <info@spot-s.jp>';
 export const REPLY_TO = 'info@spot-s.jp';
@@ -24,17 +24,18 @@ function serviceLabel(c: { needsNendoKoshin: boolean; needsSantei: boolean }) {
   return parts.join('＋');
 }
 
-function computeTotals(contacts: ApplicationInput['contacts']) {
+function computeTotals(contacts: ApplicationInput['contacts'], unitPrice: number) {
   const nendoCount = contacts.filter((c) => c.needsNendoKoshin).length;
   const santeiCount = contacts.filter((c) => c.needsSantei).length;
   const serviceCount = nendoCount + santeiCount;
-  const total = serviceCount * PRICE_PER_SERVICE;
+  const total = serviceCount * unitPrice;
   return { nendoCount, santeiCount, serviceCount, total };
 }
 
 export function buildThanksEmail(input: ApplicationInput) {
+  const unitPrice = getPlan(input.plan).priceInclTax;
   const subject = '【スポット社労士くん】年度更新・算定基礎届のご依頼を承りました';
-  const totals = computeTotals(input.contacts);
+  const totals = computeTotals(input.contacts, unitPrice);
   const contactsText = input.contacts
     .map(
       (c, i) => {
@@ -58,7 +59,7 @@ export function buildThanksEmail(input: ApplicationInput) {
   提出方法: ${SUBMISSION_LABEL[input.submissionMethod]}
   顧問先件数: ${input.contacts.length} 社
   依頼項目: 年度更新 ${totals.nendoCount} 件 ／ 算定基礎届 ${totals.santeiCount} 件
-  単価: 9,900円（税込）/ 項目　※特別価格
+  単価: ${unitPrice.toLocaleString('ja-JP')}円（税込）/ 項目
   合計金額: ${totals.total.toLocaleString('ja-JP')} 円（税込）
   注文期限: 2026年6月15日（月）
 
@@ -83,7 +84,8 @@ ${COMPANY_FOOTER}`;
 }
 
 export function buildAdminNotifyEmail(input: ApplicationInput, applicationId: string, fileLinks: string[]) {
-  const totals = computeTotals(input.contacts);
+  const unitPrice = getPlan(input.plan).priceInclTax;
+  const totals = computeTotals(input.contacts, unitPrice);
   const subject = `【新規受注】年度更新・算定基礎届 ${input.applicantOfficeName || input.applicantName} ${totals.serviceCount}項目 (${totals.total.toLocaleString('ja-JP')}円)`;
   const contactsText = input.contacts
     .map(
@@ -113,6 +115,7 @@ export function buildAdminNotifyEmail(input: ApplicationInput, applicationId: st
   メール: ${input.applicantEmail}
   電話: ${input.applicantPhone}
   提出方法: ${SUBMISSION_LABEL[input.submissionMethod]}
+  プラン: ${input.plan} (単価 ${unitPrice.toLocaleString('ja-JP')}円/項目)
   期限超過同意: ${input.deadlineAcknowledged ? 'はい' : '（期限内）'}
 
 ■ 集計

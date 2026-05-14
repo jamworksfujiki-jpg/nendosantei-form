@@ -64,6 +64,7 @@ interface Summary {
 }
 
 interface SummaryByPlan {
+  accountant: Summary;
   middle: Summary;
   standard: Summary;
 }
@@ -479,26 +480,23 @@ export default function AdminPage() {
       )}
 
       {tab === 'orders' && summaryByPlan && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
-          {(['middle', 'standard'] as const).map((pk) => {
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
+          {(['accountant', 'middle', 'standard'] as const).map((pk) => {
             const s = summaryByPlan[pk];
             if (!s) return null;
-            const isStandard = pk === 'standard';
+            const meta = pk === 'standard'
+              ? { title: '21,000円ver（税込23,100円）', url: '/sme/standard', border: 'border-amber-200', bg: 'bg-amber-50/40', text: 'text-amber-900', textSub: 'text-amber-700', revBg: 'bg-amber-100', revBorder: 'border-amber-300' }
+              : pk === 'middle'
+              ? { title: '18,000円ver（税込19,800円）', url: '/ ・ /sme', border: 'border-emerald-200', bg: 'bg-emerald-50/40', text: 'text-emerald-900', textSub: 'text-emerald-700', revBg: 'bg-emerald-100', revBorder: 'border-emerald-300' }
+              : { title: '9,900円ver（税込）', url: '/firm（非表示扱い）', border: 'border-blue-200', bg: 'bg-blue-50/40', text: 'text-blue-900', textSub: 'text-blue-700', revBg: 'bg-blue-100', revBorder: 'border-blue-300' };
             return (
               <div
                 key={pk}
-                className={
-                  'rounded-lg border-2 p-4 ' +
-                  (isStandard ? 'border-amber-200 bg-amber-50/40' : 'border-emerald-200 bg-emerald-50/40')
-                }
+                className={'rounded-lg border-2 p-4 ' + meta.border + ' ' + meta.bg}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className={'text-sm font-bold ' + (isStandard ? 'text-amber-900' : 'text-emerald-900')}>
-                    {isStandard ? '21,000円ver（税込23,100円）' : '18,000円ver（税込19,800円）'}
-                  </h2>
-                  <span className="text-xs text-slate-500">
-                    {isStandard ? '/sme/standard' : '/ ・ /sme'}
-                  </span>
+                  <h2 className={'text-sm font-bold ' + meta.text}>{meta.title}</h2>
+                  <span className="text-xs text-slate-500">{meta.url}</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <div className="rounded-md bg-white border border-slate-200 p-3">
@@ -519,9 +517,9 @@ export default function AdminPage() {
                       {formatJpy(s.totalSantei)}<span className="text-xs text-slate-500 font-normal ml-0.5">件</span>
                     </p>
                   </div>
-                  <div className={'rounded-md border p-3 ' + (isStandard ? 'bg-amber-100 border-amber-300' : 'bg-emerald-100 border-emerald-300')}>
-                    <p className={'text-[10px] uppercase tracking-wider mb-1 ' + (isStandard ? 'text-amber-700' : 'text-emerald-700')}>売上</p>
-                    <p className={'text-lg font-semibold tabular-nums ' + (isStandard ? 'text-amber-900' : 'text-emerald-900')}>
+                  <div className={'rounded-md border p-3 ' + meta.revBg + ' ' + meta.revBorder}>
+                    <p className={'text-[10px] uppercase tracking-wider mb-1 ' + meta.textSub}>売上</p>
+                    <p className={'text-lg font-semibold tabular-nums ' + meta.text}>
                       ¥{formatJpy(s.totalRevenue)}
                     </p>
                   </div>
@@ -576,6 +574,7 @@ export default function AdminPage() {
         <span className="text-xs text-slate-500">表示フィルタ:</span>
         {([
           { v: 'all' as const, label: 'すべて', cls: 'border-slate-700 bg-slate-700 text-white' },
+          { v: 'accountant' as const, label: '9,900円ver', cls: 'border-blue-700 bg-blue-700 text-white' },
           { v: 'middle' as const, label: '18,000円ver', cls: 'border-emerald-700 bg-emerald-700 text-white' },
           { v: 'standard' as const, label: '21,000円ver', cls: 'border-amber-700 bg-amber-700 text-white' },
         ]).map((opt) => {
