@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import type { ContactRow } from '@/lib/types';
 import { isAfterDeadline, isFormStopped, EMAIL_REGEX, PHONE_REGEX } from '@/lib/validation';
 import { parseContactsXlsx, buildContactRowFromParsed } from '@/lib/import-xlsx';
+import type { PlanKey } from '@/lib/plans';
 import ContactCard from './ContactCard';
 import DeadlineNotice from './DeadlineNotice';
 import PriceBadge from './PriceBadge';
@@ -33,7 +34,7 @@ function emptyContact(rowIndex: number): ContactRow {
   };
 }
 
-export default function NendosanteiForm() {
+export default function NendosanteiForm({ plan = 'accountant' }: { plan?: PlanKey } = {}) {
   const router = useRouter();
   const [applicantOfficeName, setApplicantOfficeName] = useState('');
   const [applicantName, setApplicantName] = useState('');
@@ -208,6 +209,7 @@ export default function NendosanteiForm() {
       // 3) JSON のみで /api/submit に申込内容を送信
       const payload = {
         idempotencyKey: idempotencyKeyRef.current,
+        plan,
         submissionMethod: 'form' as const,
         formType: 'firm' as const,
         applicantOfficeName: applicantOfficeName.trim(),
@@ -352,11 +354,12 @@ export default function NendosanteiForm() {
           </div>
         </section>
 
-        <PriceBadge />
+        <PriceBadge plan={plan} />
         <DeadlineNotice
           isAfterDeadline={afterDeadline}
           acknowledged={deadlineAcknowledged}
           onAcknowledge={setDeadlineAcknowledged}
+          plan={plan}
         />
         {errors.deadlineAcknowledged && (
           <p className="text-sm text-red-700 -mt-3 mb-3 ml-1">{errors.deadlineAcknowledged}</p>

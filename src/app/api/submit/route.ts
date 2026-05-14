@@ -79,6 +79,7 @@ export async function POST(req: NextRequest) {
       .insert({
         submission_method: input.submissionMethod,
         form_type: input.formType,
+        plan: input.plan,
         applicant_office_name: input.applicantOfficeName || null,
         applicant_name: input.applicantName,
         applicant_email: input.applicantEmail,

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { isAfterDeadline, isFormStopped, EMAIL_REGEX, PHONE_REGEX } from '@/lib/validation';
+import { getPlan, type PlanKey } from '@/lib/plans';
 import DeadlineNotice from './DeadlineNotice';
 import Footer from './Footer';
 
@@ -23,8 +24,9 @@ function formatBytes(b: number) {
   return `${(b / (1024 * 1024)).toFixed(2)}MB`;
 }
 
-export default function NendosanteiFormSME() {
+export default function NendosanteiFormSME({ plan = 'middle' }: { plan?: PlanKey } = {}) {
   const router = useRouter();
+  const priceStr = getPlan(plan).priceInclTax.toLocaleString('ja-JP');
   const [companyName, setCompanyName] = useState('');
   const [companyNameKana, setCompanyNameKana] = useState('');
   const [employeeCount, setEmployeeCount] = useState('');
@@ -142,6 +144,7 @@ export default function NendosanteiFormSME() {
       const empNum = employeeCount.trim() ? parseInt(employeeCount, 10) : null;
       const payload = {
         idempotencyKey: idempotencyKeyRef.current,
+        plan,
         submissionMethod: 'form' as const,
         formType: 'sme' as const,
         applicantOfficeName: '',
@@ -274,7 +277,7 @@ export default function NendosanteiFormSME() {
             </div>
             <div className="flex items-baseline justify-center gap-2 text-red-600 mt-2">
               <span className="text-3xl sm:text-4xl font-bold leading-none">各</span>
-              <span className="text-6xl sm:text-[88px] font-bold tracking-tight tabular-nums leading-none">9,900</span>
+              <span className="text-6xl sm:text-[88px] font-bold tracking-tight tabular-nums leading-none">{priceStr}</span>
               <span className="text-2xl sm:text-3xl font-bold ml-1">円</span>
             </div>
             <p className="mt-2 text-sm text-slate-600">税込</p>
@@ -284,7 +287,7 @@ export default function NendosanteiFormSME() {
                 <div>
                   <span className="block font-bold text-slate-900">年度更新</span>
                   <span className="text-xs text-slate-500 block">労働保険料申告書</span>
-                  <span className="text-base font-bold text-red-600 tabular-nums">9,900円</span>
+                  <span className="text-base font-bold text-red-600 tabular-nums">{priceStr}円</span>
                 </div>
               </div>
               <div className="flex items-center gap-3 text-sm text-slate-700">
@@ -292,7 +295,7 @@ export default function NendosanteiFormSME() {
                 <div>
                   <span className="block font-bold text-slate-900">算定基礎届</span>
                   <span className="text-xs text-slate-500 block">1社あたり</span>
-                  <span className="text-base font-bold text-red-600 tabular-nums">9,900円</span>
+                  <span className="text-base font-bold text-red-600 tabular-nums">{priceStr}円</span>
                 </div>
               </div>
             </div>
@@ -304,6 +307,7 @@ export default function NendosanteiFormSME() {
           isAfterDeadline={afterDeadline}
           acknowledged={deadlineAcknowledged}
           onAcknowledge={setDeadlineAcknowledged}
+          plan={plan}
         />
         {errors.deadlineAcknowledged && (
           <p className="text-sm text-red-700 -mt-3 mb-3 ml-1">{errors.deadlineAcknowledged}</p>
@@ -409,7 +413,7 @@ export default function NendosanteiFormSME() {
                     className="h-5 w-5 accent-emerald-700"
                   />
                   <span className="text-sm font-semibold">年度更新</span>
-                  <span className="ml-auto text-sm font-bold tabular-nums">¥9,900</span>
+                  <span className="ml-auto text-sm font-bold tabular-nums">¥{priceStr}</span>
                 </label>
                 <label className={
                   'flex items-center gap-3 px-4 h-14 rounded-md border-2 cursor-pointer transition-colors ' +
@@ -424,7 +428,7 @@ export default function NendosanteiFormSME() {
                     className="h-5 w-5 accent-emerald-700"
                   />
                   <span className="text-sm font-semibold">算定基礎届</span>
-                  <span className="ml-auto text-sm font-bold tabular-nums">¥9,900</span>
+                  <span className="ml-auto text-sm font-bold tabular-nums">¥{priceStr}</span>
                 </label>
               </div>
               {errors.needs && <p className="text-sm text-red-600 mt-2">⚠ {errors.needs}</p>}

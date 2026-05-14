@@ -26,10 +26,13 @@ interface ContactRow {
 
 type FormType = 'firm' | 'sme';
 
+type PlanKey = 'accountant' | 'middle' | 'standard';
+
 interface ApplicationRow {
   id: string;
   submission_method: 'paper' | 'email' | 'form';
   form_type: FormType;
+  plan: PlanKey;
   applicant_office_name: string | null;
   applicant_name: string | null;
   applicant_email: string | null;
@@ -42,7 +45,14 @@ interface ApplicationRow {
   santei_count: number;
   service_count: number;
   revenue: number;
+  unit_price: number;
 }
+
+const PLAN_LABEL: Record<PlanKey, string> = {
+  accountant: '会計事務所向け(9,900円)',
+  middle: '中小企業向け(19,800円)',
+  standard: '中小企業向け(23,100円)',
+};
 
 interface Summary {
   totalOrders: number;
@@ -96,7 +106,7 @@ export default function AdminPage() {
   const [rows, setRows] = useState<ApplicationRow[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summaryByFormType, setSummaryByFormType] = useState<SummaryByFormType | null>(null);
-  const [formTypeFilter, setFormTypeFilter] = useState<'all' | FormType>('all');
+  const [formTypeFilter, setFormTypeFilter] = useState<'all' | PlanKey>('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -566,15 +576,15 @@ export default function AdminPage() {
         <span className="text-xs text-slate-500">表示フィルタ:</span>
         {([
           { v: 'all' as const, label: 'すべて', cls: 'border-slate-700 bg-slate-700 text-white' },
-          { v: 'firm' as const, label: '会計事務所のみ', cls: 'border-blue-700 bg-blue-700 text-white' },
-          { v: 'sme' as const, label: '中小企業のみ', cls: 'border-emerald-700 bg-emerald-700 text-white' },
+          { v: 'middle' as const, label: '18,000円ver', cls: 'border-emerald-700 bg-emerald-700 text-white' },
+          { v: 'standard' as const, label: '21,000円ver', cls: 'border-amber-700 bg-amber-700 text-white' },
         ]).map((opt) => {
           const selected = formTypeFilter === opt.v;
           return (
             <button
               key={opt.v}
               type="button"
-              onClick={() => setFormTypeFilter(opt.v)}
+              onClick={() => setFormTypeFilter(opt.v as 'all' | PlanKey)}
               className={
                 'h-8 px-3 rounded-md border-2 text-xs font-semibold transition-colors ' +
                 (selected ? opt.cls : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400')
@@ -585,7 +595,7 @@ export default function AdminPage() {
           );
         })}
         <span className="ml-auto text-xs text-slate-500 tabular-nums">
-          {formatJpy(rows.filter((r) => formTypeFilter === 'all' || r.form_type === formTypeFilter).length)} 件表示中
+          {formatJpy(rows.filter((r) => formTypeFilter === 'all' || r.plan === formTypeFilter).length)} 件表示中
         </span>
       </div>
       <div className="overflow-x-auto bg-white rounded-lg border border-slate-200">
@@ -593,7 +603,7 @@ export default function AdminPage() {
           <thead className="bg-slate-50 text-slate-700">
             <tr>
               <th className="text-left px-3 py-2.5 font-medium">受付日</th>
-              <th className="text-left px-3 py-2.5 font-medium">種別</th>
+              <th className="text-left px-3 py-2.5 font-medium">プラン</th>
               <th className="text-left px-3 py-2.5 font-medium">会計事務所名／会社名</th>
               <th className="text-left px-3 py-2.5 font-medium">ご担当者</th>
               <th className="text-left px-3 py-2.5 font-medium">申込種別</th>
@@ -605,7 +615,7 @@ export default function AdminPage() {
             </tr>
           </thead>
           <tbody>
-            {rows.filter((r) => formTypeFilter === 'all' || r.form_type === formTypeFilter).map((r) => {
+            {rows.filter((r) => formTypeFilter === 'all' || r.plan === formTypeFilter).map((r) => {
               const isExpanded = expanded.has(r.id);
               const contacts = r.application_contacts ?? [];
               return (
@@ -618,17 +628,19 @@ export default function AdminPage() {
                   <td className="px-3 py-2.5 whitespace-nowrap">
                     <span className={
                       'inline-block px-2 py-0.5 rounded text-xs font-semibold ' +
-                      (r.form_type === 'sme'
+                      (r.plan === 'standard'
+                        ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                        : r.plan === 'middle'
                         ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                         : 'bg-blue-50 text-blue-800 border border-blue-200')
                     }>
-                      {FORM_TYPE_LABEL[r.form_type ?? 'firm']}
+                      {PLAN_LABEL[r.plan ?? 'accountant']}
                     </span>
                   </td>
                   <td className="px-3 py-2.5 text-slate-900 font-medium">
-                    {r.form_type === 'sme'
-                      ? (r.application_contacts?.[0]?.company_name || <span className="text-slate-400 font-normal">（未入力）</span>)
-                      : (r.applicant_office_name || <span className="text-slate-400 font-normal">（未入力）</span>)}
+                    {r.application_contacts?.[0]?.company_name
+                      || r.applicant_office_name
+                      || <span className="text-slate-400 font-normal">（未入力）</span>}
                   </td>
                   <td className="px-3 py-2.5 text-slate-700">
                     {r.applicant_name ?? '-'}
@@ -733,7 +745,7 @@ export default function AdminPage() {
                 </tr>
               );
             })}
-            {rows.filter((r) => formTypeFilter === 'all' || r.form_type === formTypeFilter).length === 0 && (
+            {rows.filter((r) => formTypeFilter === 'all' || r.plan === formTypeFilter).length === 0 && (
               <tr>
                 <td colSpan={10} className="text-center py-12 text-slate-500">
                   {rows.length === 0 ? '受注はまだありません' : '該当する受注がありません'}

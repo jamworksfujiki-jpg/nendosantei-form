@@ -47,6 +47,7 @@ export const contactSchema = z
 
 export const applicationSchema = z.object({
   idempotencyKey: z.string().trim().min(8).max(64).optional(),
+  plan: z.enum(['accountant', 'middle', 'standard']).optional().default('accountant'),
   submissionMethod: z.enum(['paper', 'email', 'form']),
   formType: z.enum(['firm', 'sme']).optional().default('firm'),
   applicantOfficeName: z.string().trim().max(200).optional().default(''),

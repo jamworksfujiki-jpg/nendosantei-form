@@ -1,6 +1,9 @@
 import Image from 'next/image';
+import { getPlan, type PlanKey } from '@/lib/plans';
 
-export default function PriceBadge() {
+export default function PriceBadge({ plan = 'accountant' }: { plan?: PlanKey }) {
+  const p = getPlan(plan);
+  const priceStr = p.priceInclTax.toLocaleString('ja-JP');
   return (
     <div className="my-8">
       <div className="relative rounded-xl border-2 border-blue-800 bg-gradient-to-br from-blue-50 via-white to-white px-6 py-9 sm:py-11 text-center shadow-sm">
@@ -13,7 +16,7 @@ export default function PriceBadge() {
 
         <div className="flex items-baseline justify-center gap-2 text-red-600 mt-2">
           <span className="text-3xl sm:text-4xl font-bold leading-none">各</span>
-          <span className="text-6xl sm:text-[88px] font-bold tracking-tight tabular-nums leading-none">9,900</span>
+          <span className="text-6xl sm:text-[88px] font-bold tracking-tight tabular-nums leading-none">{priceStr}</span>
           <span className="text-2xl sm:text-3xl font-bold ml-1">円</span>
         </div>
         <p className="mt-2 text-sm text-slate-600">税込</p>
@@ -31,7 +34,7 @@ export default function PriceBadge() {
             <div>
               <span className="block font-bold text-slate-900">年度更新</span>
               <span className="text-xs text-slate-500 block">労働保険料申告書／1顧問先</span>
-              <span className="text-base font-bold text-red-600 tabular-nums">9,900円</span>
+              <span className="text-base font-bold text-red-600 tabular-nums">{priceStr}円</span>
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm text-slate-700">
@@ -45,7 +48,7 @@ export default function PriceBadge() {
             <div>
               <span className="block font-bold text-slate-900">算定基礎届</span>
               <span className="text-xs text-slate-500 block">1顧問先</span>
-              <span className="text-base font-bold text-red-600 tabular-nums">9,900円</span>
+              <span className="text-base font-bold text-red-600 tabular-nums">{priceStr}円</span>
             </div>
           </div>
         </div>

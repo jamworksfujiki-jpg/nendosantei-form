@@ -1,12 +1,16 @@
 'use client';
 
+import { getPlan, type PlanKey } from '@/lib/plans';
+
 interface Props {
   isAfterDeadline: boolean;
   acknowledged: boolean;
   onAcknowledge: (v: boolean) => void;
+  plan?: PlanKey;
 }
 
-export default function DeadlineNotice({ isAfterDeadline, acknowledged, onAcknowledge }: Props) {
+export default function DeadlineNotice({ isAfterDeadline, acknowledged, onAcknowledge, plan = 'accountant' }: Props) {
+  const price = getPlan(plan).priceInclTax.toLocaleString('ja-JP');
   return (
     <section className="section-card" aria-labelledby="deadline-heading">
       <div className="section-header">
@@ -33,7 +37,7 @@ export default function DeadlineNotice({ isAfterDeadline, acknowledged, onAcknow
               7/10を過ぎた場合、即刻の罰則はありませんが<span className="text-slate-900 font-semibold">違反状態</span>となります。常識の範囲を超えると罰則の可能性があります。
             </li>
             <li>
-              <span className="text-slate-900 font-semibold">7/10を過ぎてからのご注文は本料金（9,900円/項目）では承れません</span>。別途お見積もりとなります。
+              <span className="text-slate-900 font-semibold">7/10を過ぎてからのご注文は本料金（{price}円/項目）では承れません</span>。別途お見積もりとなります。
             </li>
           </ul>
         </div>

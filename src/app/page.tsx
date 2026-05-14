@@ -1,5 +1,5 @@
-import NendosanteiForm from '@/components/NendosanteiForm';
+import NendosanteiFormSME from '@/components/NendosanteiFormSME';
 
 export default function HomePage() {
-  return <NendosanteiForm />;
+  return <NendosanteiFormSME plan="middle" />;
 }

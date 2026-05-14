@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase';
-import { getEnv } from '@/lib/env';
 import { checkRateLimit, clientKey } from '@/lib/rate-limit';
+import { PRICE_PLANS, getPlan, type PlanKey } from '@/lib/plans';
 
 export const runtime = 'nodejs';
-
-const PRICE_PER_SERVICE = 9900;
-
-function safeEqual(a: string, b: string) {
-  if (a.length !== b.length) return false;
-  let r = 0;
-  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return r === 0;
-}
 
 export async function GET(req: NextRequest) {
   const limit = checkRateLimit(clientKey(req, 'admin-list'), { windowMs: 60_000, max: 30 });
@@ -24,7 +15,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabase
     .from('applications')
     .select(`
-      id, submission_method, form_type, applicant_office_name, applicant_name,
+      id, submission_method, form_type, plan, applicant_office_name, applicant_name,
       applicant_email, applicant_phone, total_contacts, status, created_at,
       application_contacts (
         id, row_index, company_name, company_name_kana, employee_count,
@@ -50,52 +41,61 @@ export async function GET(req: NextRequest) {
     application_files?: RawFile[];
   };
 
-  const applications = (data ?? []).map((a) => {
+  const applicationsAll = (data ?? []).map((a) => {
     const contacts = (a.application_contacts ?? []).slice().sort(
       (x: RawContact, y: RawContact) => x.row_index - y.row_index,
     ) as RawContact[];
     const nendoCount = contacts.filter((c) => c.needs_nendo_koshin).length;
     const santeiCount = contacts.filter((c) => c.needs_santei).length;
     const serviceCount = nendoCount + santeiCount;
-    const revenue = serviceCount * PRICE_PER_SERVICE;
+    const planKey = (a.plan ?? 'accountant') as PlanKey;
+    const price = getPlan(planKey).priceInclTax;
+    const revenue = serviceCount * price;
     return {
       ...a,
       form_type: a.form_type ?? 'firm',
+      plan: planKey,
       application_contacts: contacts,
       nendo_count: nendoCount,
       santei_count: santeiCount,
       service_count: serviceCount,
       revenue,
+      unit_price: price,
     };
   });
 
-  function summarize(rows: typeof applications) {
-    const orders = rows.length;
-    const contacts = rows.reduce((sum, a) => sum + (a.total_contacts ?? 0), 0);
+  // 「税理士部分」（formType='firm' = 会計事務所/税理士向け accountant プラン）は一旦非表示
+  const applications = applicationsAll.filter((a) => a.form_type !== 'firm');
+
+  function summarize(rows: typeof applicationsAll) {
     const nendo = rows.reduce((sum, a) => sum + a.nendo_count, 0);
     const santei = rows.reduce((sum, a) => sum + a.santei_count, 0);
     const services = nendo + santei;
+    const revenue = rows.reduce((sum, a) => sum + a.revenue, 0);
     return {
-      totalOrders: orders,
-      totalContacts: contacts,
+      totalOrders: rows.length,
+      totalContacts: rows.reduce((sum, a) => sum + (a.total_contacts ?? 0), 0),
       totalNendo: nendo,
       totalSantei: santei,
       totalServices: services,
-      totalRevenue: services * PRICE_PER_SERVICE,
-      pricePerService: PRICE_PER_SERVICE,
+      totalRevenue: revenue,
     };
   }
 
   const summary = summarize(applications);
-  const summaryFirm = summarize(applications.filter((a) => a.form_type === 'firm'));
-  const summarySme = summarize(applications.filter((a) => a.form_type === 'sme'));
+  const summarySme = summarize(applicationsAll.filter((a) => a.form_type === 'sme'));
+  const summaryByPlan = {
+    middle: summarize(applicationsAll.filter((a) => a.plan === 'middle')),
+    standard: summarize(applicationsAll.filter((a) => a.plan === 'standard')),
+  };
 
   return NextResponse.json({
     applications,
     summary,
     summaryByFormType: {
-      firm: summaryFirm,
       sme: summarySme,
     },
+    summaryByPlan,
+    plans: PRICE_PLANS,
   });
 }
