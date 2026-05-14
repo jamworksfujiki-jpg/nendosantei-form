@@ -63,9 +63,9 @@ interface Summary {
   totalRevenue: number;
 }
 
-interface SummaryByFormType {
-  firm: Summary;
-  sme: Summary;
+interface SummaryByPlan {
+  middle: Summary;
+  standard: Summary;
 }
 
 const FORM_TYPE_LABEL: Record<FormType, string> = {
@@ -104,7 +104,7 @@ export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [rows, setRows] = useState<ApplicationRow[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
-  const [summaryByFormType, setSummaryByFormType] = useState<SummaryByFormType | null>(null);
+  const [summaryByPlan, setSummaryByPlan] = useState<SummaryByPlan | null>(null);
   const [formTypeFilter, setFormTypeFilter] = useState<'all' | PlanKey>('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -166,7 +166,7 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(json.error || '取得失敗');
       setRows(json.applications);
       setSummary(json.summary);
-      setSummaryByFormType(json.summaryByFormType ?? null);
+      setSummaryByPlan(json.summaryByPlan ?? null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'エラー');
     } finally {
@@ -478,25 +478,26 @@ export default function AdminPage() {
         </div>
       )}
 
-      {tab === 'orders' && summaryByFormType && (
+      {tab === 'orders' && summaryByPlan && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
-          {(['firm', 'sme'] as const).map((ft) => {
-            const s = summaryByFormType[ft];
-            const isFirm = ft === 'firm';
+          {(['middle', 'standard'] as const).map((pk) => {
+            const s = summaryByPlan[pk];
+            if (!s) return null;
+            const isStandard = pk === 'standard';
             return (
               <div
-                key={ft}
+                key={pk}
                 className={
                   'rounded-lg border-2 p-4 ' +
-                  (isFirm ? 'border-blue-200 bg-blue-50/40' : 'border-emerald-200 bg-emerald-50/40')
+                  (isStandard ? 'border-amber-200 bg-amber-50/40' : 'border-emerald-200 bg-emerald-50/40')
                 }
               >
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className={'text-sm font-bold ' + (isFirm ? 'text-blue-900' : 'text-emerald-900')}>
-                    {FORM_TYPE_LABEL[ft]}様向け
+                  <h2 className={'text-sm font-bold ' + (isStandard ? 'text-amber-900' : 'text-emerald-900')}>
+                    {isStandard ? '21,000円ver（税込23,100円）' : '18,000円ver（税込19,800円）'}
                   </h2>
                   <span className="text-xs text-slate-500">
-                    {isFirm ? '/ （複数顧問先）' : '/sme （自社1件）'}
+                    {isStandard ? '/sme/standard' : '/ ・ /sme'}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -518,9 +519,9 @@ export default function AdminPage() {
                       {formatJpy(s.totalSantei)}<span className="text-xs text-slate-500 font-normal ml-0.5">件</span>
                     </p>
                   </div>
-                  <div className={'rounded-md border p-3 ' + (isFirm ? 'bg-blue-100 border-blue-300' : 'bg-emerald-100 border-emerald-300')}>
-                    <p className={'text-[10px] uppercase tracking-wider mb-1 ' + (isFirm ? 'text-blue-700' : 'text-emerald-700')}>売上</p>
-                    <p className={'text-lg font-semibold tabular-nums ' + (isFirm ? 'text-blue-900' : 'text-emerald-900')}>
+                  <div className={'rounded-md border p-3 ' + (isStandard ? 'bg-amber-100 border-amber-300' : 'bg-emerald-100 border-emerald-300')}>
+                    <p className={'text-[10px] uppercase tracking-wider mb-1 ' + (isStandard ? 'text-amber-700' : 'text-emerald-700')}>売上</p>
+                    <p className={'text-lg font-semibold tabular-nums ' + (isStandard ? 'text-amber-900' : 'text-emerald-900')}>
                       ¥{formatJpy(s.totalRevenue)}
                     </p>
                   </div>
