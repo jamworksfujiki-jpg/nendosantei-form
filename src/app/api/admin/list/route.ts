@@ -64,8 +64,8 @@ export async function GET(req: NextRequest) {
     };
   });
 
-  // 「税理士部分」（formType='firm' = 会計事務所/税理士向け accountant プラン）は一旦非表示
-  const applications = applicationsAll.filter((a) => a.form_type !== 'firm');
+  // 「税理士部分」（accountant プラン= 9,900円）は一旦非表示
+  const applications = applicationsAll.filter((a) => a.form_type !== 'firm' && a.plan !== 'accountant');
 
   function summarize(rows: typeof applicationsAll) {
     const nendo = rows.reduce((sum, a) => sum + a.nendo_count, 0);
