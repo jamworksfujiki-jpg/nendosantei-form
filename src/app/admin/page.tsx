@@ -61,7 +61,6 @@ interface Summary {
   totalSantei: number;
   totalServices: number;
   totalRevenue: number;
-  pricePerService: number;
 }
 
 interface SummaryByFormType {
@@ -564,7 +563,7 @@ export default function AdminPage() {
               ¥{formatJpy(summary.totalRevenue)}
             </p>
             <p className="text-xs text-blue-700/80 mt-1">
-              @¥{formatJpy(summary.pricePerService)} × {formatJpy(summary.totalServices)}項目
+              {formatJpy(summary.totalServices)} 項目分（プラン別単価で計算済み）
             </p>
           </div>
         </div>
