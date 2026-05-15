@@ -270,6 +270,7 @@ export async function POST(req: NextRequest) {
 
     // Google Sheets (GAS Webhook) に申込データを送信
     const gasUrl = getEnv('GAS_WEBHOOK_URL');
+    console.log('[gas] url present:', !!gasUrl, 'applicationId:', applicationId);
     if (gasUrl && applicationId) {
       try {
         const planInfo = (() => {
@@ -277,10 +278,7 @@ export async function POST(req: NextRequest) {
           if (input.plan === 'middle') return { label: '18,000円ver', priceInclTax: 19800 };
           return { label: '9,900円ver', priceInclTax: 9900 };
         })();
-        await fetch(gasUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        const gasJson = JSON.stringify({
             applicationId,
             createdAt: new Date().toISOString(),
             plan: input.plan,
@@ -304,8 +302,29 @@ export async function POST(req: NextRequest) {
               needsSantei: c.needsSantei,
               subtotal: ((c.needsNendoKoshin ? 1 : 0) + (c.needsSantei ? 1 : 0)) * planInfo.priceInclTax,
             })),
-          }),
+          });
+        // GAS Web App は 302 で googleusercontent.com にリダイレクトする。
+        // 通常 fetch だと POST→GET に変わるため、手動でリダイレクトを追従して再 POST する。
+        let gasRes = await fetch(gasUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: gasJson,
+          redirect: 'manual',
         });
+        let hop = 0;
+        while ([301, 302, 303, 307, 308].includes(gasRes.status) && hop < 5) {
+          const loc = gasRes.headers.get('location');
+          if (!loc) break;
+          gasRes = await fetch(loc, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: gasJson,
+            redirect: 'manual',
+          });
+          hop++;
+        }
+        const gasBody = await gasRes.text().catch(() => '');
+        console.log('[gas] hops:', hop, 'status:', gasRes.status, 'body:', gasBody.slice(0, 200));
       } catch (e) {
         console.error('GAS webhook failed', e);
       }
