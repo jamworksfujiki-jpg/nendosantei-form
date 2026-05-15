@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import FreeeInviteGuide from '@/components/FreeeInviteGuide';
@@ -27,6 +28,20 @@ export default function ThanksPage() {
           <p className="text-sm text-gray-600 mt-3 leading-relaxed">
             ご担当者様のメールアドレス宛に、申込内容の確認メールをお送りしました。<br />
             内容を確認次第、担当（油井）より <strong>2営業日以内</strong> にご連絡いたします。
+          </p>
+        </div>
+
+        <div className="mt-6 rounded-xl border-2 border-[#F0A93B] bg-[#FFF8EC] p-5 sm:p-6 flex items-center gap-4">
+          <Image
+            src="/warning-icon.png"
+            alt="注意"
+            width={64}
+            height={64}
+            className="shrink-0 w-12 h-12 sm:w-16 sm:h-16"
+            unoptimized
+          />
+          <p className="text-base sm:text-lg font-bold text-[#B6711A] leading-snug">
+            迷惑メールフォルダーも必ずご確認ください。
           </p>
         </div>
 
