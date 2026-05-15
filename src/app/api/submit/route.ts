@@ -303,28 +303,15 @@ export async function POST(req: NextRequest) {
               subtotal: ((c.needsNendoKoshin ? 1 : 0) + (c.needsSantei ? 1 : 0)) * planInfo.priceInclTax,
             })),
           });
-        // GAS Web App は 302 で googleusercontent.com にリダイレクトする。
-        // 通常 fetch だと POST→GET に変わるため、手動でリダイレクトを追従して再 POST する。
-        let gasRes = await fetch(gasUrl, {
+        // GAS Web App の正規パターン: POST → 302 → googleusercontent.com を GET で結果取得。
+        // デフォルト fetch は redirect:'follow' で自動で 302→GET 変換するので、そのままで OK。
+        const gasRes = await fetch(gasUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: gasJson,
-          redirect: 'manual',
         });
-        let hop = 0;
-        while ([301, 302, 303, 307, 308].includes(gasRes.status) && hop < 5) {
-          const loc = gasRes.headers.get('location');
-          if (!loc) break;
-          gasRes = await fetch(loc, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: gasJson,
-            redirect: 'manual',
-          });
-          hop++;
-        }
         const gasBody = await gasRes.text().catch(() => '');
-        console.log('[gas] hops:', hop, 'status:', gasRes.status, 'body:', gasBody.slice(0, 200));
+        console.log('[gas] status:', gasRes.status, 'body:', gasBody.slice(0, 200));
       } catch (e) {
         console.error('GAS webhook failed', e);
       }
