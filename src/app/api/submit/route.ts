@@ -170,6 +170,11 @@ export async function POST(req: NextRequest) {
     const adminCcList = adminCcRaw
       ? adminCcRaw.split(',').map((s) => s.trim()).filter(Boolean)
       : [];
+    // info@spot-s.jp には必ず届くように、to に入っていなければ CC に追加
+    const ALWAYS_CC = 'info@spot-s.jp';
+    if (adminTo.toLowerCase() !== ALWAYS_CC && !adminCcList.some((a) => a.toLowerCase() === ALWAYS_CC)) {
+      adminCcList.push(ALWAYS_CC);
+    }
     const adminCc = adminCcList.length > 0 ? adminCcList : undefined;
     const fallbackTo = adminCcList[0] || 'jamworksfujiki@gmail.com';
 
