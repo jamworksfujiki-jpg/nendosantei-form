@@ -246,6 +246,25 @@ export default function AdminPage() {
     }
   }
 
+  async function deleteApplication(applicationId: string, label: string) {
+    const confirmed = window.confirm(
+      `「${label}」の申込を削除します。\n\nこの操作は元に戻せません。\n申込・顧問先・添付ファイル・メールログを全て削除します。\n\n本当に削除しますか？`,
+    );
+    if (!confirmed) return;
+    try {
+      const res = await fetch('/api/admin/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || '削除に失敗しました');
+      await loadData();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : '削除に失敗しました');
+    }
+  }
+
   if (!authed) {
     return (
       <main className="max-w-md mx-auto p-8">
@@ -611,6 +630,7 @@ export default function AdminPage() {
               <th className="text-center px-3 py-2.5 font-medium">算定</th>
               <th className="text-right px-3 py-2.5 font-medium">売上</th>
               <th className="text-left px-3 py-2.5 font-medium">状態</th>
+              <th className="text-center px-3 py-2.5 font-medium">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -741,12 +761,21 @@ export default function AdminPage() {
                       {STATUS_LABEL[r.status] ?? r.status}
                     </span>
                   </td>
+                  <td className="px-3 py-2.5 text-center">
+                    <button
+                      onClick={() => deleteApplication(r.id, r.applicant_office_name || r.applicant_name || '(無名)')}
+                      className="text-xs px-2 py-1 rounded border border-red-300 text-red-700 hover:bg-red-50 transition-colors"
+                      title="この申込を削除"
+                    >
+                      削除
+                    </button>
+                  </td>
                 </tr>
               );
             })}
             {rows.filter((r) => formTypeFilter === 'all' || r.plan === formTypeFilter).length === 0 && (
               <tr>
-                <td colSpan={10} className="text-center py-12 text-slate-500">
+                <td colSpan={11} className="text-center py-12 text-slate-500">
                   {rows.length === 0 ? '受注はまだありません' : '該当する受注がありません'}
                 </td>
               </tr>
