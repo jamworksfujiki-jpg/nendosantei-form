@@ -249,6 +249,8 @@ export default function NendosanteiForm({ plan = 'accountant' }: { plan?: PlanKe
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || '送信に失敗しました');
+      try { window.parent?.postMessage('nendosantei:scroll-to-top', '*'); } catch {}
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
       router.push('/thanks');
     } catch (err) {
       console.error(err);

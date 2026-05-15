@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { isAfterDeadline, isFormStopped, EMAIL_REGEX, PHONE_REGEX } from '@/lib/validation';
 import { getPlan, type PlanKey } from '@/lib/plans';
@@ -183,6 +182,9 @@ export default function NendosanteiFormSME({ plan = 'middle' }: { plan?: PlanKey
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || '送信に失敗しました');
+      // iframe 親 (spot-s.or.jp) にスクロールを依頼
+      try { window.parent?.postMessage('nendosantei:scroll-to-top', '*'); } catch {}
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
       router.push('/thanks');
     } catch (err) {
       console.error(err);
@@ -312,14 +314,6 @@ export default function NendosanteiFormSME({ plan = 'middle' }: { plan?: PlanKey
         {errors.deadlineAcknowledged && (
           <p className="text-sm text-red-700 -mt-3 mb-3 ml-1">{errors.deadlineAcknowledged}</p>
         )}
-
-        {/* 会計事務所向けへの導線 */}
-        <div className="rounded-lg bg-slate-50 border border-slate-200 p-3 text-sm text-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <span>会計事務所様で複数の顧問先をまとめてご依頼の場合は</span>
-          <Link href="/" className="text-emerald-700 font-semibold underline underline-offset-4 hover:text-emerald-900">
-            会計事務所様向けフォームへ →
-          </Link>
-        </div>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-6">
           {/* STEP 1: 会社情報 */}

@@ -1,8 +1,16 @@
+'use client';
+
+import { useEffect } from 'react';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import FreeeInviteGuide from '@/components/FreeeInviteGuide';
 
 export default function ThanksPage() {
+  useEffect(() => {
+    try { window.parent?.postMessage('nendosantei:scroll-to-top', '*'); } catch {}
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen">
       <main className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
