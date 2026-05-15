@@ -1,13 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import FreeeInviteGuide from '@/components/FreeeInviteGuide';
 
 export default function ThanksPage() {
+  const [inIframe, setInIframe] = useState(false);
+
   useEffect(() => {
+    const embedded = typeof window !== 'undefined' && window.top !== window.self;
+    setInIframe(embedded);
+    // 親ウィンドウにスクロール依頼（iframe 内のとき）
     try { window.parent?.postMessage('nendosantei:scroll-to-top', '*'); } catch {}
     window.scrollTo(0, 0);
   }, []);
@@ -47,13 +52,16 @@ export default function ThanksPage() {
 
         <FreeeInviteGuide />
 
-        <div className="mt-8 text-center">
-          <Link href="/" className="btn-secondary inline-flex items-center">
-            ← フォームに戻る
-          </Link>
-        </div>
+        {/* iframe 内では「フォームに戻る」ボタンとフッター非表示 */}
+        {!inIframe && (
+          <div className="mt-8 text-center">
+            <Link href="/" className="btn-secondary inline-flex items-center">
+              ← フォームに戻る
+            </Link>
+          </div>
+        )}
       </main>
-      <Footer />
+      {!inIframe && <Footer />}
     </div>
   );
 }
