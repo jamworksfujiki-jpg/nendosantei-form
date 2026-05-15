@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ContactRow } from '@/lib/types';
 import { isAfterDeadline, isFormStopped, EMAIL_REGEX, PHONE_REGEX } from '@/lib/validation';
@@ -366,14 +365,6 @@ export default function NendosanteiForm({ plan = 'accountant' }: { plan?: PlanKe
         {errors.deadlineAcknowledged && (
           <p className="text-sm text-red-700 -mt-3 mb-3 ml-1">{errors.deadlineAcknowledged}</p>
         )}
-
-        {/* SME向けへの導線 */}
-        <div className="rounded-lg bg-slate-50 border border-slate-200 p-3 text-sm text-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <span>会計事務所様ではなく、自社のご依頼の場合は</span>
-          <Link href="/sme" className="text-blue-800 font-semibold underline underline-offset-4 hover:text-blue-900">
-            一般中小企業様向けフォームへ →
-          </Link>
-        </div>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-6">
             {/* STEP 1: ご担当者様情報 */}
