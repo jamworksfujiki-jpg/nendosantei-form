@@ -143,7 +143,7 @@ export function buildAdminNotifyEmail(input: ApplicationInput, applicationId: st
 ■ 顧問先一覧
 ${contactsText}
 
-■ 添付ファイル（30日間有効署名URL）
+■ 添付ファイル（1年間有効署名URL／管理画面からは無期限でDL可）
 ${fileLinksText}
 
 ${COMPANY_FOOTER}`;

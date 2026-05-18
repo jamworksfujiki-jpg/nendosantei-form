@@ -8,7 +8,7 @@ import { getEnv } from '@/lib/env';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
-const SIGNED_URL_EXPIRES_SEC = 60 * 60 * 24 * 30;
+const SIGNED_URL_EXPIRES_SEC = 60 * 60 * 24 * 365;
 
 function getResend() {
   const key = getEnv('RESEND_API_KEY', { required: true });

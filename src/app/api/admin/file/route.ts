@@ -5,7 +5,7 @@ import { checkRateLimit, clientKey } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
-const SIGNED_URL_EXPIRES_SEC = 60 * 60 * 24 * 30;
+const SIGNED_URL_EXPIRES_SEC = 60 * 60 * 24 * 365;
 
 function safeEqual(a: string, b: string) {
   if (a.length !== b.length) return false;
